@@ -1,10 +1,10 @@
 /// @param family
 /// @param timestep
-/// @param [order]
+/// @param order
 
-var _family   = argument[0];
-var _timestep = argument[1];
-var _order    = (argument_count > 2)? argument[2] : IOTA_POSITION;
+var _family   = argument0;
+var _timestep = argument1;
+var _order    = argument2;
 
 var _list = __iota_map[? _family ];
 switch( _list[| __E_IOTA_DATA.MODE ] ) {
