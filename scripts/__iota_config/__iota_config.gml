@@ -1,10 +1,3 @@
-#region Config
-
-#macro IOTA_WARNINGS true
-#macro IOTA_LOUD_WARNINGS true
-
-#endregion
-
 #region Definitions
 
 #macro IOTA_POSITION 0
