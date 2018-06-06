@@ -2,8 +2,8 @@
 /// @param timestep
 /// @param [order]
 
-var _family   = argument0;
-var _timestep = argument1;
+var _family   = argument[0];
+var _timestep = argument[1];
 var _order    = (argument_count > 2)? argument[2] : IOTA_POSITION;
 
 var _list = __iota_map[? _family ];
