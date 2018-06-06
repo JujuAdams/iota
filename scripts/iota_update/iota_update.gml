@@ -33,13 +33,10 @@ for( var _family = 0; _family < _size; _family++ ) {
             var _velocity     =   _list[| __E_IOTA_DATA.VELOCITY     ];
             var _acceleration =   _list[| __E_IOTA_DATA.ACCELERATION ];
             var _damping      = 1-_list[| __E_IOTA_DATA.DAMPING      ];
+            var _damping_k    = power( _damping, _timestep );
             
-            var _damping_k = power( _damping, _timestep );
-            _velocity     *= _damping_k; //This is very much an approximation, but a necessary one. (v+at)*(d^t) doesn't have a definite integral!
-            _acceleration *= _damping_k;
-            
-            _list[| __E_IOTA_DATA.VELOCITY ] += _timestep*_acceleration;
-            _list[| __E_IOTA_DATA.POSITION ] += _timestep*_velocity + 0.5*_timestep*_timestep*_acceleration;
+            _list[| __E_IOTA_DATA.VELOCITY ]  = ( _velocity + _timestep*_acceleration )*_damping_k;
+            _list[| __E_IOTA_DATA.POSITION ] += ( _timestep*_velocity + 0.5*_timestep*_timestep*_acceleration )*_damping_k;
             
         break;
         

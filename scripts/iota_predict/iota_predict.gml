@@ -14,16 +14,22 @@ switch( _list[| __E_IOTA_DATA.MODE ] ) {
     break;
         
     case E_IOTA_FAMILY.VELOCITY_ACCELERATION:
-        var _acceleration = _list[| __E_IOTA_DATA.ACCELERATION ];
-        if ( _order == IOTA_POSITION ) return _list[| __E_IOTA_DATA.POSITION ] + _timestep*_list[| __E_IOTA_DATA.VELOCITY ] + 0.5*_timestep*_timestep*_acceleration;
-        if ( _order == IOTA_VELOCITY ) return _list[| __E_IOTA_DATA.VELOCITY ] + _timestep*_acceleration;
-    break;
-        
-    case E_IOTA_FAMILY.VELOCITY_ACCELERATION_DAMPING:
         var _velocity     = _list[| __E_IOTA_DATA.VELOCITY     ];
         var _acceleration = _list[| __E_IOTA_DATA.ACCELERATION ];
         if ( _order == IOTA_POSITION ) return _list[| __E_IOTA_DATA.POSITION ] + _timestep*_velocity + 0.5*_timestep*_timestep*_acceleration;
-        if ( _order == IOTA_VELOCITY ) return ( _timestep*_acceleration + _velocity )*power( 1-_list[| __E_IOTA_DATA.DAMPING ], _timestep );
+        if ( _order == IOTA_VELOCITY ) return _velocity + _timestep*_acceleration;
+    break;
+        
+    case E_IOTA_FAMILY.VELOCITY_ACCELERATION_DAMPING:
+    
+        var _velocity     =   _list[| __E_IOTA_DATA.VELOCITY     ];
+        var _acceleration =   _list[| __E_IOTA_DATA.ACCELERATION ];
+        var _damping      = 1-_list[| __E_IOTA_DATA.DAMPING      ];
+        var _damping_k    = power( _damping, _timestep );
+        
+        if ( _order == IOTA_POSITION ) return _list[| __E_IOTA_DATA.POSITION ] + ( _timestep*_velocity + 0.5*_timestep*_timestep*_acceleration )*_damping_k;
+        if ( _order == IOTA_VELOCITY ) return ( _velocity + _timestep*_acceleration )*_damping_k;
+        
     break;
         
     case E_IOTA_FAMILY.TIMER:
