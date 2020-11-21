@@ -33,8 +33,3 @@ if (keyboard_check_pressed(ord("P")))
 {
     iota_pause_set(!iota_pause_get());
 }
-
-if (keyboard_check_pressed(ord("D")))
-{
-    instance_destroy(obj_player);
-}

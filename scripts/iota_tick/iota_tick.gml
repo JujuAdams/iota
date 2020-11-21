@@ -1,6 +1,6 @@
 function iota_tick()
 {
-    var _delta = delta_time/1000000;
+    var _delta = min(1/IOTA_MINIMUM_FRAMERATE, delta_time/1000000);
     
     var _timer = 0;
     repeat(IOTA_TIMER_COUNT)
@@ -17,56 +17,62 @@ function iota_tick()
         
         global.__iota_tick_count[@ _timer] = _count;
         
-        var _methods_list = global.__iota_methods[_timer];
-        var _scopes_list = global.__iota_scopes[_timer];
-        repeat(_count)
+        if (_count > 0)
         {
-            var _i = 0;
-            repeat(ds_list_size(_methods_list))
+            var _methods_list = global.__iota_methods[_timer];
+            var _scopes_list = global.__iota_scopes[_timer];
+            repeat(_count)
             {
-                var _scope = _scopes_list[| _i];
-                if (is_real(_scope))
+                var _i = 0;
+                repeat(ds_list_size(_methods_list))
                 {
-                    var _exists = instance_exists(_scope);
-                    var _deactivated = false;
-                    
-                    if (!_exists)
+                    var _scope = _scopes_list[| _i];
+                    if (is_real(_scope))
                     {
-                        instance_activate_object(_scope);
-                        if (instance_exists(_scope))
+                        var _exists = instance_exists(_scope);
+                        var _deactivated = false;
+                    
+                        if (IOTA_CHECK_FOR_DEACTIVATION)
                         {
-                            instance_deactivate_object(_scope);
-                            _exists = true;
-                            _deactivated = true;
+                            if (!_exists)
+                            {
+                                instance_activate_object(_scope);
+                                if (instance_exists(_scope))
+                                {
+                                    instance_deactivate_object(_scope);
+                                    _exists = true;
+                                    _deactivated = true;
+                                }
+                            }
+                        }
+                        
+                        if (_exists)
+                        {
+                            if (!_deactivated) with(_scope) _methods_list[| _i]();
+                        }
+                        else
+                        {
+                            ds_list_delete(_methods_list, _i);
+                            ds_list_delete(_scopes_list, _i);
+                            --_i;
+                        }
+                    }
+                    else
+                    {
+                        if (weak_ref_alive(_scope))
+                        {
+                            with(_scope.ref) _methods_list[| _i]();
+                        }
+                        else
+                        {
+                            ds_list_delete(_methods_list, _i);
+                            ds_list_delete(_scopes_list, _i);
+                            --_i;
                         }
                     }
                     
-                    if (_exists)
-                    {
-                        if (!_deactivated) with(_scope) _methods_list[| _i]();
-                    }
-                    else
-                    {
-                        ds_list_delete(_methods_list, _i);
-                        ds_list_delete(_scopes_list, _i);
-                        --_i;
-                    }
+                    ++_i;
                 }
-                else
-                {
-                    if (weak_ref_alive(_scope))
-                    {
-                        with(_scope.ref) _methods_list[| _i]();
-                    }
-                    else
-                    {
-                        ds_list_delete(_methods_list, _i);
-                        ds_list_delete(_scopes_list, _i);
-                        --_i;
-                    }
-                }
-                
-                ++_i;
             }
         }
         
@@ -93,8 +99,8 @@ global.__iota_pause            = array_create(IOTA_TIMER_COUNT, false);
 var _timer = 0;
 repeat(IOTA_TIMER_COUNT)
 {
-    global.__iota_methods[@     _timer] = ds_list_create();
-    global.__iota_scopes[@      _timer] = ds_list_create();
+    global.__iota_methods[@ _timer] = ds_list_create();
+    global.__iota_scopes[@  _timer] = ds_list_create();
     ++_timer;
 }
 

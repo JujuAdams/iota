@@ -36,11 +36,14 @@ function iota_add_method_ext(_timer, _scope, _method)
             }
             else
             {
-                instance_activate_object(_id);
-                if (instance_exists(_id))
+                if (IOTA_CHECK_FOR_DEACTIVATION)
                 {
-                    _is_instance = true;
-                    instance_deactivate_object(_id);
+                    instance_activate_object(_id);
+                    if (instance_exists(_id))
+                    {
+                        _is_instance = true;
+                        instance_deactivate_object(_id);
+                    }
                 }
             }
         }
