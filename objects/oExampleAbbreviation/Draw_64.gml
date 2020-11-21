@@ -1,1 +1,0 @@
-draw_text( 40, 10, "time factor = " + string( time_factor ) );

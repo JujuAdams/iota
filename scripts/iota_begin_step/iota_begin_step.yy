@@ -6,7 +6,7 @@
     "path": "folders/Iota.yy",
   },
   "resourceVersion": "1.0",
-  "name": "__iota_config",
+  "name": "iota_begin_step",
   "tags": [],
   "resourceType": "GMScript",
 }
