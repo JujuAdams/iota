@@ -6,7 +6,7 @@
     "path": "folders/Iota.yy",
   },
   "resourceVersion": "1.0",
-  "name": "iota_execute",
+  "name": "iota_tick",
   "tags": [],
   "resourceType": "GMScript",
 }

@@ -6,7 +6,7 @@
     "path": "folders/Iota.yy",
   },
   "resourceVersion": "1.0",
-  "name": "iota_execute_ext",
+  "name": "iota_add_method",
   "tags": [],
   "resourceType": "GMScript",
 }

@@ -1,6 +1,6 @@
 var _string  = "";
 _string += "Iota " + string(__IOTA_VERSION) + " (" + string(__IOTA_DATE) + ")\n"
-_string += "Tiny Fixed Timestep Library\n"
+_string += "Miniature Fixed Timestep Library\n"
 _string += "@jujuadams\n\n";
 _string += "Game framerate: " + string(game_get_speed(gamespeed_fps)) + "FPS\n";
 _string += "Iota target framerate: " + string(iota_target_framerate_get()) + "FPS\n\n";
