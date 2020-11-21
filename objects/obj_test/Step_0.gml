@@ -1,7 +1,7 @@
-//Tick Iota, and execute any added methods
+//Tick iota, and execute any added methods
 iota_tick();
 
-//Cycle through Iota target framerates
+//Cycle through iota target framerates
 if (keyboard_check_pressed(ord("I")))
 {
     switch(iota_target_framerate_get())

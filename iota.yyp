@@ -38,7 +38,7 @@
     {"roomId":{"name":"rm_main","path":"rooms/rm_main/rm_main.yy",},},
   ],
   "Folders": [
-    {"folderPath":"folders/Iota.yy","order":0,"resourceVersion":"1.0","name":"Iota","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/iota.yy","order":0,"resourceVersion":"1.0","name":"iota","tags":[],"resourceType":"GMFolder",},
   ],
   "AudioGroups": [
     {"targets":461609314234257646,"resourceVersion":"1.0","name":"audiogroup_default","resourceType":"GMAudioGroup",},

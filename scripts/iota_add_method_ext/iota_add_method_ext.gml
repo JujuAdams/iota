@@ -12,7 +12,7 @@ function iota_add_method_ext(_timer, _scope, _method)
     {
         if (_scope < 100000)
         {
-            throw "Iota method scope must be an instance or a struct, object indexes are not permitted";
+            throw "iota method scope must be an instance or a struct, object indexes are not permitted";
         }
         else
         {

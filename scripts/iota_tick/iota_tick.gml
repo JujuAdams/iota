@@ -87,7 +87,7 @@ function iota_tick()
 #macro __IOTA_VERSION  "1.0.0"
 #macro __IOTA_DATE     "2020-11-21"
 
-show_debug_message("Iota: Welcome to Iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
+show_debug_message("iota: Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
 
 global.__iota_methods          = array_create(IOTA_TIMER_COUNT, undefined);
 global.__iota_scopes           = array_create(IOTA_TIMER_COUNT, undefined);
