@@ -1,5 +1,6 @@
 if (!iota_pause_get())
 {
-    input_x = keyboard_check(vk_right) - keyboard_check(vk_left);
-    input_y = keyboard_check(vk_space);
+    left_state = keyboard_check(vk_left);
+    right_state = keyboard_check(vk_right);
+    if (keyboard_check_pressed(vk_space)) jump_pressed_state = true;
 }
