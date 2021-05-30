@@ -1,27 +1,33 @@
+//These three macros are only valid inside iota methods and will return <undefined> outside of them
+#macro IOTA_CURRENT_TIMER     global.__iota_current_timer //Index of the timer that's currently being handled (0-indexed)
+#macro IOTA_CYCLES_FOR_TIMER  global.__iota_total_cycles  //Total number of cycles that will be processed this frame for the current timer
+#macro IOTA_CYCLE_INDEX       global.__iota_cycle_index   //Current cycle for the current timer (0-indexed)
+
 function iota_tick()
 {
     var _delta = min(1/IOTA_MINIMUM_FRAMERATE, delta_time/1000000);
     
-    var _timer = 0;
+    IOTA_CURRENT_TIMER = 0;
     repeat(IOTA_TIMER_COUNT)
     {
-        var _count = 0;
+        IOTA_CYCLES_FOR_TIMER = 0;
         
-        if (!global.__iota_pause[_timer])
+        if (!global.__iota_pause[IOTA_CURRENT_TIMER])
         {
-            var _framerate = global.__iota_target_framerate[_timer];
-            
-            _count = floor(_framerate*global.__iota_accumulator[_timer]);
-            global.__iota_accumulator[@ _timer] += _delta - (_count / _framerate);
+            var _framerate = global.__iota_target_framerate[IOTA_CURRENT_TIMER];
+            IOTA_CYCLES_FOR_TIMER = floor(_framerate*global.__iota_accumulator[IOTA_CURRENT_TIMER]);
+            global.__iota_accumulator[@ IOTA_CURRENT_TIMER] += _delta - (IOTA_CYCLES_FOR_TIMER / _framerate);
         }
         
-        global.__iota_tick_count[@ _timer] = _count;
+        global.__iota_tick_count[@ IOTA_CURRENT_TIMER] = IOTA_CYCLES_FOR_TIMER;
         
-        if (_count > 0)
+        if (IOTA_CYCLES_FOR_TIMER > 0)
         {
-            var _methods_list = global.__iota_methods[_timer];
-            var _scopes_list = global.__iota_scopes[_timer];
-            repeat(_count)
+            var _methods_list = global.__iota_methods[IOTA_CURRENT_TIMER];
+            var _scopes_list = global.__iota_scopes[IOTA_CURRENT_TIMER];
+            
+            IOTA_CYCLE_INDEX = 0;
+            repeat(IOTA_CYCLES_FOR_TIMER)
             {
                 var _i = 0;
                 repeat(ds_list_size(_methods_list))
@@ -73,11 +79,17 @@ function iota_tick()
                     
                     ++_i;
                 }
+                
+                IOTA_CYCLE_INDEX++;
             }
         }
         
-        ++_timer;
+        IOTA_CURRENT_TIMER++;
     }
+    
+    IOTA_CURRENT_TIMER    = undefined;
+    IOTA_CYCLES_FOR_TIMER = undefined;
+    IOTA_CYCLE_INDEX      = undefined;
 }
 
 
@@ -95,6 +107,10 @@ global.__iota_accumulator      = array_create(IOTA_TIMER_COUNT, 0);
 global.__iota_tick_count       = array_create(IOTA_TIMER_COUNT, 1);
 global.__iota_target_framerate = array_create(IOTA_TIMER_COUNT, game_get_speed(gamespeed_fps));
 global.__iota_pause            = array_create(IOTA_TIMER_COUNT, false);
+
+IOTA_CURRENT_TIMER    = undefined;
+IOTA_CYCLES_FOR_TIMER = undefined;
+IOTA_CYCLE_INDEX      = undefined;
 
 var _timer = 0;
 repeat(IOTA_TIMER_COUNT)
