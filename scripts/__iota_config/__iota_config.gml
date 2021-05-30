@@ -4,6 +4,7 @@
 #macro IOTA_TIMER_COUNT  3                //How many timers iota should track. Timers are processed in ascending order
 #macro IOTA_CHECK_FOR_DEACTIVATION  true  //Whether to check if instances have been deactivated. This incurs a slight performance penalty
 #macro IOTA_MINIMUM_FRAMERATE   15        //The minimum framerate that iota will run at
+#macro IOTA_ID_VARIABLE_NAME "__iota_id__"
 
 //These three macros are also available for use inside iota methods
 //Outside of iota methods they will return <undefined>

@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Extra Bits",
-    "path": "folders/iota/Extra Bits.yy",
+    "name": "Itsy Bitsy Little Library",
+    "path": "folders/iota/(System)/Itsy Bitsy Little Library.yy",
   },
   "resourceVersion": "1.0",
-  "name": "iota_target_framerate_get",
+  "name": "__iota_system",
   "tags": [],
   "resourceType": "GMScript",
 }

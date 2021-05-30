@@ -1,6 +1,6 @@
-/// @param method
+/// @param function
 
-function iota_add_method(_method)
+function iota_add_method(_function)
 {
-    iota_add_method_ext(0, self, _method);
+    iota_add_method_ext(0, self, _function);
 }
