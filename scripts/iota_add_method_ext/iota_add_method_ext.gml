@@ -8,6 +8,7 @@ function iota_add_method_ext(_timer, _scope, _method)
     var _is_struct   = false;
     var _id          = undefined;
     
+    //If the scope is a real number then presume it's an instance ID
     if (is_real(_scope))
     {
         if (_scope < 100000)
@@ -16,6 +17,8 @@ function iota_add_method_ext(_timer, _scope, _method)
         }
         else
         {
+            //We found a valid instance ID so let's set some variables based on that
+            //Changing scope here works around some bugs in GameMaker that I don't think exist any more?
             with(_scope)
             {
                 _scope = self;
@@ -27,6 +30,9 @@ function iota_add_method_ext(_timer, _scope, _method)
     }
     else
     {
+        //Sooooometimes we might get given a struct which is actually an instance
+        //Despite being able to read struct variable, it doesn't report as a struct... which is weird
+        //Anyway, this check works around that!
         var _id = variable_instance_get(_scope, "id");
         if (is_real(_id) && !is_struct(_scope))
         {
@@ -36,6 +42,7 @@ function iota_add_method_ext(_timer, _scope, _method)
             }
             else
             {
+                //Do a deactivation check here too, why not
                 if (IOTA_CHECK_FOR_DEACTIVATION)
                 {
                     instance_activate_object(_id);
@@ -47,7 +54,7 @@ function iota_add_method_ext(_timer, _scope, _method)
                 }
             }
         }
-        else
+        else if (is_struct(_scope))
         {
             _is_struct = true;
         }

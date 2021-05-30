@@ -1,3 +1,5 @@
+/// Returns whether a timer is paused
+/// 
 /// @param [timerIndex]
 
 function iota_pause_get()

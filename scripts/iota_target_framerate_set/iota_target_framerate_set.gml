@@ -1,3 +1,6 @@
+/// Sets the target framerate for a timer
+/// This can be used to fake a slowmo effect but i wouldn't necessarily recommend that
+/// 
 /// @param framerate
 /// @param [timerIndex]
 

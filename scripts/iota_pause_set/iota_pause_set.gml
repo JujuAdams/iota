@@ -1,3 +1,5 @@
+/// Pauses a timer, thereby preventing attached methods for that timer from being executed
+/// 
 /// @param state
 /// @param [timerIndex]
 

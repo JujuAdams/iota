@@ -1,3 +1,5 @@
+/// Gets the target framerate for a timer
+///
 /// @param [timer]
 
 function iota_target_framerate_get()
