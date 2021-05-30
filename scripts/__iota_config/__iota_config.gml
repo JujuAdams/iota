@@ -10,4 +10,4 @@
 //Outside of iota methods they will return <undefined>
 //    IOTA_CURRENT_TIMER    = Index of the timer that's currently being handled (0-indexed)
 //    IOTA_CYCLES_FOR_TIMER = Total number of cycles that will be processed this frame for the current timer
-//    IOTA_CYCLE_INDEX      = Current cycle for the current timer (0-indexed)
+//    IOTA_CYCLE_INDEX      = Current cycle for the current timer (0-indexed). This will be -1 for begin methods and =IOTA_CYCLES_FOR_TIMER for end methods

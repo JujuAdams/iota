@@ -29,6 +29,7 @@ function iota_tick()
             var _timer_data_array  = global.__iota_data_array[ IOTA_CURRENT_TIMER];
             
             //Iterate over the timer and execute begin methods
+            IOTA_CYCLE_INDEX = -1;
             __iota_execute_methods_for_timer(_timer_data_array, _timer_data_struct, __IOTA_DATA.BEGIN_METHOD);
             
             //Execute cycles one at a time
@@ -42,6 +43,7 @@ function iota_tick()
             }
             
             //Now iterate over the timer for the final time and execute end methods
+            IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_TIMER;
             __iota_execute_methods_for_timer(_timer_data_array, _timer_data_struct, __IOTA_DATA.END_METHOD);
         }
         
