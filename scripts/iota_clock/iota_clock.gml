@@ -1,3 +1,41 @@
+/// Constructor that instantiates an iota clock
+/// 
+/// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .tick() method is called
+/// 
+/// iota clocks have the following public methods:
+/// 
+///   .tick()
+///     Updates the clock and executes methods
+///     A clock will execute enough cycles to match the target framerate to the actual framerate
+///     This might mean a clock will execute zero cycles, sometimes multiple cycles
+///     
+///   .add_cycle_method(function)
+///     Adds a function to be executed for each cycle
+///     The scope of the function added is determined by who calls .add_method()
+///     
+///   .add_begin_method(function)
+///     Adds a function to be executed at the start of a tick
+///     Begin methods will *not* be executed if the clock doesn't need to execute cycles at all
+///     The scope of the function added is determined by who calls .add_begin_method()
+///     
+///   .add_end_method(function)
+///     Adds a function to be executed at the end of a tick
+///     End methods will *not* be executed if the clock doesn't need to execute cycles at all
+///     The scope of the function added is determined by who calls .add_end_method()
+///     
+///   .set_pause(state)
+///     Sets whether the clock is paused
+///     
+///   .get_pause(state)
+///     Returns whether the clock is paused
+///     
+///   .set_target_framerate(fps)
+///     Sets the target framerate. If not set, this value will default to your game's target framerate
+///     This generally should not change, but you can sort of hack in time dilation effects by manipulating this value
+///     
+///   .get_target_framerate()
+///     Returns the target framerate
+
 function iota_clock() constructor
 {
     var _identifier = (argument_count > 0)? argument[0] : undefined;
@@ -9,7 +47,7 @@ function iota_clock() constructor
     
     __children_struct    = {};
     __begin_method_array = [];
-    __method_array       = [];
+    __cycle_method_array = [];
     __end_method_array   = [];
     
     #region Tick
@@ -64,7 +102,7 @@ function iota_clock() constructor
         switch(_method_type)
         {
             case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
-            case __IOTA_CHILD.METHOD:       var _array = __method_array;       break;
+            case __IOTA_CHILD.METHOD:       var _array = __cycle_method_array; break;
             case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
         }
         
@@ -167,7 +205,7 @@ function iota_clock() constructor
         switch(_method_type)
         {
             case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
-            case __IOTA_CHILD.METHOD:       var _array = __method_array;       break;
+            case __IOTA_CHILD.METHOD:       var _array = __cycle_method_array; break;
             case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
         }
         
@@ -291,7 +329,7 @@ function iota_clock() constructor
 
 
 
-#region System Stuff
+#region (System)
 
 #macro __IOTA_VERSION  "2.0.0"
 #macro __IOTA_DATE     "2021-05-31"
