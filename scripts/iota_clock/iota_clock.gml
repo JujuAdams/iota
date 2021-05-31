@@ -48,10 +48,12 @@ function iota_clock() constructor
     __paused           = false;
     __accumulator      = 0;
     
-    __children_struct    = {};
-    __begin_method_array = [];
-    __cycle_method_array = [];
-    __end_method_array   = [];
+    __children_struct       = {};
+    __begin_method_array    = [];
+    __cycle_method_array    = [];
+    __end_method_array      = [];
+    __var_momentary_array   = [];
+    __var_interpolate_array = [];
     
     #region Tick
     
@@ -90,13 +92,23 @@ function iota_clock() constructor
             IOTA_CYCLE_INDEX = 0;
             repeat(IOTA_CYCLES_FOR_CLOCK)
             {
+                //Capture interpolated variable state before the final cycle
+                if (IOTA_CYCLE_INDEX == IOTA_CYCLES_FOR_CLOCK-1) __variables_interpolate_refresh();
+                
                 __execute_methods(__IOTA_CHILD.CYCLE_METHOD);
+                
+                //Reset momentary variables after the first cycle
+                if (IOTA_CYCLE_INDEX == 0) __variables_momentary_reset();
+                
                 IOTA_CYCLE_INDEX++;
             }
             
             IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_CLOCK;
             __execute_methods(__IOTA_CHILD.END_METHOD);
         }
+        
+        //Update our output interpolated variables
+        if (!__paused) __variables_interpolate_update();
     
         //Make sure to reset these macros so they can't be accessed outside of iota methods
         IOTA_CURRENT_CLOCK    = undefined;
@@ -205,16 +217,28 @@ function iota_clock() constructor
     
     static __add_method_generic = function(_scope, _function, _method_type)
     {
-        var _is_instance = false;
-        var _is_struct   = false;
-        var _id          = undefined;
-        
         switch(_method_type)
         {
             case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
             case __IOTA_CHILD.CYCLE_METHOD: var _array = __cycle_method_array; break;
             case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
         }
+        
+        var _child_data = __get_child_data(_scope);
+        
+        //If we haven't seen this method type before for this child, add the child to the relevant array
+        if (_child_data[_method_type] == undefined) array_push(_array, _child_data);
+        
+        //Set the relevant element in the data packet
+        //We strip the scope off the method so we don't accidentally keep structs alive
+        _child_data[@ _method_type] = method(undefined, _function);
+    }
+    
+    static __get_child_data = function(_scope)
+    {
+        var _is_instance = false;
+        var _is_struct   = false;
+        var _id          = undefined;
         
         if (is_real(_scope))
         {
@@ -283,26 +307,142 @@ function iota_clock() constructor
             variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, global.__iota_unique_id);
         
             //Create a new data packet and set it up
-            var _child = array_create(__IOTA_CHILD.__SIZE, undefined);
-            _child[@ __IOTA_CHILD.IOTA_ID] = global.__iota_unique_id;
-            _child[@ __IOTA_CHILD.SCOPE  ] = (_is_instance? _id : weak_ref_create(_scope));
-            _child[@ __IOTA_CHILD.DEAD   ] = false;
+            var _child_data = array_create(__IOTA_CHILD.__SIZE, undefined);
+            _child_data[@ __IOTA_CHILD.IOTA_ID] = global.__iota_unique_id;
+            _child_data[@ __IOTA_CHILD.SCOPE  ] = (_is_instance? _id : weak_ref_create(_scope));
+            _child_data[@ __IOTA_CHILD.DEAD   ] = false;
         
             //Then slot this data packet into the clock's data struct + array
-            __children_struct[$ global.__iota_unique_id] = _child;
+            __children_struct[$ global.__iota_unique_id] = _child_data;
         }
         else
         {
             //Fetch the data packet from the clock's data struct
-            _child = __children_struct[$ _child_id];
+            _child_data = __children_struct[$ _child_id];
         }
         
-        //If we haven't seen this method type before for this child, add the child to the relevant array
-        if (_child[_method_type] == undefined) array_push(_array, _child);
+        return _child_data;
+    }
+    
+    #endregion
+    
+    #region Variables
+    
+    static variable_momentary = function(_name, _reset)
+    {
+        var _child_data = __get_child_data(other);
+        var _array = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
         
-        //Set the relevant element in the data packet
-        //We strip the scope off the method so we don't accidentally keep structs alive
-        _child[@ _method_type] = method(undefined, _function);
+        if (_array == undefined)
+        {
+            _array = [];
+            _child_data[@ __IOTA_CHILD.VARIABLES_MOMENTARY] = _array;
+            array_push(__var_momentary_array, _child_data);
+        }
+        
+        var _i = 0;
+        repeat(array_length(_array) div 2)
+        {
+            if (_array[_i] == _name)
+            {
+                //This variable already exists
+                return undefined;
+            }
+            
+            _i += 2;
+        }
+        
+        array_push(_array, _name, _reset);
+    }
+    
+    static variable_interpolate = function(_in_name, _out_name)
+    {
+        var _child_data = __get_child_data(other);
+        var _array = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+        
+        if (_array == undefined)
+        {
+            _array = [];
+            _child_data[@ __IOTA_CHILD.VARIABLES_INTERPOLATE] = _array;
+            array_push(__var_interpolate_array, _child_data);
+        }
+        
+        var _i = 0;
+        repeat(array_length(_array) div 3)
+        {
+            if (_array[_i] == _in_name)
+            {
+                //This variable already exists
+                return undefined;
+            }
+            
+            _i += 3;
+        }
+        
+        array_push(_array, _in_name, _out_name, variable_instance_get(other, _in_name));
+        variable_instance_set(other, _out_name, variable_instance_get(other, _in_name));
+    }
+    
+    static __variables_momentary_reset = function()
+    {
+        var _i = 0;
+        repeat(array_length(__var_momentary_array))
+        {
+            var _child_data = __var_momentary_array[_i];
+            var _scope     = _child_data[__IOTA_CHILD.SCOPE              ];
+            var _variables = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
+            
+            var _j = 0;
+            repeat(array_length(_variables) div 2)
+            {
+                variable_instance_set(_scope, _variables[_i], _variables[_i+1]);
+                _j += 2;
+            }
+            
+            ++_i;
+        }
+    }
+    
+    static __variables_interpolate_refresh = function()
+    {
+        var _i = 0;
+        repeat(array_length(__var_interpolate_array))
+        {
+            var _child_data = __var_interpolate_array[_i];
+            var _scope     = _child_data[__IOTA_CHILD.SCOPE                ];
+            var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+            
+            var _j = 0;
+            repeat(array_length(_variables) div 3)
+            {
+                _variables[@ _j+2] = variable_instance_get(_scope, _variables[_j]);
+                _j += 3;
+            }
+            
+            ++_i;
+        }
+    }
+    
+    static __variables_interpolate_update = function()
+    {
+        var _remainder = get_remainder();
+        
+        var _i = 0;
+        repeat(array_length(__var_interpolate_array))
+        {
+            var _child_data = __var_interpolate_array[_i];
+            var _scope     = _child_data[__IOTA_CHILD.SCOPE                ];
+            var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+            
+            var _j = 0;
+            repeat(array_length(_variables) div 3)
+            {
+                variable_instance_set(_scope, _variables[_j+1], lerp(_variables[_j+2], variable_instance_get(_scope, _variables[_j]), _remainder));
+                _j += 3;
+            }
+            
+            ++_i;
+        }
     }
     
     #endregion
@@ -366,6 +506,8 @@ enum __IOTA_CHILD
     CYCLE_METHOD,
     END_METHOD,
     DEAD,
+    VARIABLES_MOMENTARY,
+    VARIABLES_INTERPOLATE,
     __SIZE
 }
 
