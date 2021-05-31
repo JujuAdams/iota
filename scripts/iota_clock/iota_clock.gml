@@ -83,7 +83,7 @@ function iota_clock() constructor
             IOTA_CYCLE_INDEX = 0;
             repeat(IOTA_CYCLES_FOR_CLOCK)
             {
-                __execute_methods(__IOTA_CHILD.METHOD);
+                __execute_methods(__IOTA_CHILD.CYCLE_METHOD);
                 IOTA_CYCLE_INDEX++;
             }
             
@@ -102,7 +102,7 @@ function iota_clock() constructor
         switch(_method_type)
         {
             case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
-            case __IOTA_CHILD.METHOD:       var _array = __cycle_method_array; break;
+            case __IOTA_CHILD.CYCLE_METHOD: var _array = __cycle_method_array; break;
             case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
         }
         
@@ -186,9 +186,9 @@ function iota_clock() constructor
         return __add_method_generic(other, _function, __IOTA_CHILD.BEGIN_METHOD);
     }
     
-    static add_method = function(_function)
+    static add_cycle_method = function(_function)
     {
-        return __add_method_generic(other, _function, __IOTA_CHILD.METHOD);
+        return __add_method_generic(other, _function, __IOTA_CHILD.CYCLE_METHOD);
     }
     
     static add_end_method = function(_function)
@@ -205,7 +205,7 @@ function iota_clock() constructor
         switch(_method_type)
         {
             case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
-            case __IOTA_CHILD.METHOD:       var _array = __cycle_method_array; break;
+            case __IOTA_CHILD.CYCLE_METHOD: var _array = __cycle_method_array; break;
             case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
         }
         
@@ -351,7 +351,7 @@ enum __IOTA_CHILD
     IOTA_ID,
     SCOPE,
     BEGIN_METHOD,
-    METHOD,
+    CYCLE_METHOD,
     END_METHOD,
     DEAD,
     __SIZE

@@ -17,7 +17,7 @@ obj_controller.clock.add_begin_method(function()
 
 
 
-obj_controller.clock.add_method(function()
+obj_controller.clock.add_cycle_method(function()
 {
     //Move left/right
     //This is continuous input so we don't want to clear these states
