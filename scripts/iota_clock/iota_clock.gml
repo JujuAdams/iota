@@ -35,6 +35,9 @@
 ///     
 ///   .get_target_framerate()
 ///     Returns the target framerate
+///     
+///   .get_remainder()
+///     Returns the remainder on the accumulator
 
 function iota_clock() constructor
 {
@@ -65,11 +68,15 @@ function iota_clock() constructor
         
         if (!__paused)
         {
-            //Figure out how many full cycles this clock requires based the accumulator and the clock's framerate
-            IOTA_CYCLES_FOR_CLOCK = floor(__target_framerate*__accumulator);
+            ////Figure out how many full cycles this clock requires based the accumulator and the clock's framerate
+            //IOTA_CYCLES_FOR_CLOCK = floor(__target_framerate*__accumulator);
+            //
+            ////Any leftover time that can't fit into a full cycle add back onto the accumulator
+            //__accumulator += _delta - (IOTA_CYCLES_FOR_CLOCK / __target_framerate);
             
-            //Any leftover time that can't fit into a full cycle add back onto the accumulator
-            __accumulator += _delta - (IOTA_CYCLES_FOR_CLOCK / __target_framerate);
+            __accumulator += _delta;
+            IOTA_CYCLES_FOR_CLOCK = floor(__target_framerate*__accumulator);
+            __accumulator -= IOTA_CYCLES_FOR_CLOCK/__target_framerate;
         }
         
         if (IOTA_CYCLES_FOR_CLOCK > 0)
@@ -322,6 +329,11 @@ function iota_clock() constructor
         return __target_framerate;
     }
     
+    static get_remainder = function()
+    {
+        return __target_framerate*__accumulator;
+    }
+    
     #endregion
 }
 
@@ -331,7 +343,7 @@ function iota_clock() constructor
 
 #region (System)
 
-#macro __IOTA_VERSION  "2.0.0"
+#macro __IOTA_VERSION  "2.0.1"
 #macro __IOTA_DATE     "2021-05-31"
 
 show_debug_message("iota: Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
