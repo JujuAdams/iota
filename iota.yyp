@@ -1,20 +1,21 @@
 {
   "resources": [
-    {"id":{"name":"iota_add_end_method","path":"scripts/iota_add_end_method/iota_add_end_method.yy",},"order":4,},
-    {"id":{"name":"iota_add_method","path":"scripts/iota_add_method/iota_add_method.yy",},"order":3,},
+    {"id":{"name":"iota_add_end_method","path":"scripts/iota_add_end_method/iota_add_end_method.yy",},"order":5,},
+    {"id":{"name":"iota_add_method","path":"scripts/iota_add_method/iota_add_method.yy",},"order":4,},
     {"id":{"name":"iota_target_framerate_set","path":"scripts/iota_target_framerate_set/iota_target_framerate_set.yy",},"order":3,},
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},"order":2,},
     {"id":{"name":"__iota_system","path":"scripts/__iota_system/__iota_system.yy",},"order":0,},
-    {"id":{"name":"iota_tick","path":"scripts/iota_tick/iota_tick.yy",},"order":1,},
+    {"id":{"name":"iota_tick","path":"scripts/iota_tick/iota_tick.yy",},"order":2,},
     {"id":{"name":"iota_target_framerate_get","path":"scripts/iota_target_framerate_get/iota_target_framerate_get.yy",},"order":4,},
     {"id":{"name":"iota_add_begin_method_ext","path":"scripts/iota_add_begin_method_ext/iota_add_begin_method_ext.yy",},"order":0,},
-    {"id":{"name":"iota_add_begin_method","path":"scripts/iota_add_begin_method/iota_add_begin_method.yy",},"order":2,},
+    {"id":{"name":"iota_add_begin_method","path":"scripts/iota_add_begin_method/iota_add_begin_method.yy",},"order":3,},
     {"id":{"name":"obj_test","path":"objects/obj_test/obj_test.yy",},"order":1,},
-    {"id":{"name":"iota_pause_set","path":"scripts/iota_pause_set/iota_pause_set.yy",},"order":7,},
+    {"id":{"name":"iota_pause_set","path":"scripts/iota_pause_set/iota_pause_set.yy",},"order":6,},
     {"id":{"name":"__iota_config","path":"scripts/__iota_config/__iota_config.yy",},"order":0,},
     {"id":{"name":"iota_add_end_method_ext","path":"scripts/iota_add_end_method_ext/iota_add_end_method_ext.yy",},"order":2,},
     {"id":{"name":"iota_add_method_ext","path":"scripts/iota_add_method_ext/iota_add_method_ext.yy",},"order":1,},
-    {"id":{"name":"iota_pause_get","path":"scripts/iota_pause_get/iota_pause_get.yy",},"order":8,},
+    {"id":{"name":"iota_pause_get","path":"scripts/iota_pause_get/iota_pause_get.yy",},"order":7,},
+    {"id":{"name":"iota_clock","path":"scripts/iota_clock/iota_clock.yy",},"order":1,},
     {"id":{"name":"rm_main","path":"rooms/rm_main/rm_main.yy",},"order":3,},
   ],
   "Options": [
@@ -44,8 +45,8 @@
   ],
   "Folders": [
     {"folderPath":"folders/iota.yy","order":0,"resourceVersion":"1.0","name":"iota","tags":[],"resourceType":"GMFolder",},
-    {"folderPath":"folders/iota/Extra Bits.yy","order":9,"resourceVersion":"1.0","name":"Extra Bits","tags":[],"resourceType":"GMFolder",},
-    {"folderPath":"folders/iota/(System).yy","order":10,"resourceVersion":"1.0","name":"(System)","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/iota/Extra Bits.yy","order":8,"resourceVersion":"1.0","name":"Extra Bits","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/iota/(System).yy","order":9,"resourceVersion":"1.0","name":"(System)","tags":[],"resourceType":"GMFolder",},
     {"folderPath":"folders/iota/(System)/Itsy Bitsy Little Library.yy","order":1,"resourceVersion":"1.0","name":"Itsy Bitsy Little Library","tags":[],"resourceType":"GMFolder",},
   ],
   "AudioGroups": [
