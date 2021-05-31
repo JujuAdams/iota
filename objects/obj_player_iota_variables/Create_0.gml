@@ -5,16 +5,13 @@ left_state = false;
 right_state = false;
 jump_pressed_state = false;
 
-prev_x = x;
-prev_y = y;
 
-obj_controller.clock.add_begin_method(function()
-{
-    //Do a basic jump if 1) we're on the groud and 2) the player has pressed space
-    if ((y >= ystart) && jump_pressed_state) velocity_y -= 20;
-    
-    jump_pressed_state = false; //Clear this input state as it's an "on press" value
-});
+
+//Reset jump_pressed_state at the end of the first cycle
+obj_controller.clock.variable_momentary("jump_pressed_state", false);
+//Set iota_x/iota_y to the interpolated value of x/y
+obj_controller.clock.variable_interpolate("x", "iota_x");
+obj_controller.clock.variable_interpolate("y", "iota_y");
 
 
 
@@ -25,13 +22,14 @@ obj_controller.clock.add_cycle_method(function()
     if (left_state) velocity_x -= 2;
     if (right_state) velocity_x += 2;
     
+    //Do a basic jump if 1) we're on the groud and 2) the player has pressed space
+    if ((y >= ystart) && jump_pressed_state) velocity_y -= 20;
+    
     //Apply friction and gravity
     velocity_x *= 0.8;
     velocity_y += 0.8;
     
     //Move the player
-    prev_x = x;
-    prev_y = y;
     x += velocity_x;
     y += velocity_y;
     
@@ -43,11 +41,4 @@ obj_controller.clock.add_cycle_method(function()
         y = ystart;
         velocity_y = 0;
     }
-});
-
-
-
-obj_controller.clock.add_end_method(function()
-{
-    //idk what to put here lol
 });
