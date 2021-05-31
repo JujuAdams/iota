@@ -1,16 +1,15 @@
-//Tick iota, and execute any added methods
-iota_tick();
+clock.tick();
 
 //Cycle through iota target framerates
 if (keyboard_check_pressed(ord("I")))
 {
-    switch(iota_target_framerate_get())
+    switch(clock.get_target_framerate())
     {
-        case 30:  iota_target_framerate_set( 60); break;
-        case 60:  iota_target_framerate_set( 75); break;
-        case 75:  iota_target_framerate_set(120); break;
-        case 120: iota_target_framerate_set(144); break;
-        case 144: iota_target_framerate_set( 30); break;
+        case 30:  clock.set_target_framerate( 60); break;
+        case 60:  clock.set_target_framerate( 75); break;
+        case 75:  clock.set_target_framerate(120); break;
+        case 120: clock.set_target_framerate(144); break;
+        case 144: clock.set_target_framerate( 30); break;
     }
 }
 
@@ -31,5 +30,5 @@ if (keyboard_check_pressed(ord("G")))
 //Pause toggle
 if (keyboard_check_pressed(ord("P")))
 {
-    iota_pause_set(!iota_pause_get());
+    clock.set_pause(!clock.get_pause());
 }

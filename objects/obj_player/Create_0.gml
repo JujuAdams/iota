@@ -5,7 +5,9 @@ left_state = false;
 right_state = false;
 jump_pressed_state = false;
 
-iota_add_begin_method(function()
+
+
+obj_controller.clock.add_begin_method(function()
 {
     //Do a basic jump if 1) we're on the groud and 2) the player has pressed space
     if ((y >= ystart) && jump_pressed_state) velocity_y -= 20;
@@ -13,7 +15,9 @@ iota_add_begin_method(function()
     jump_pressed_state = false; //Clear this input state as it's an "on press" value
 });
 
-iota_add_method(function()
+
+
+obj_controller.clock.add_method(function()
 {
     //Move left/right
     //This is continuous input so we don't want to clear these states
@@ -38,7 +42,9 @@ iota_add_method(function()
     }
 });
 
-iota_add_end_method(function()
+
+
+obj_controller.clock.add_end_method(function()
 {
-    //idk what to put here
+    //idk what to put here lol
 });

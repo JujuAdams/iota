@@ -1,22 +1,12 @@
-enum __IOTA_CHILD
+function iota_clock() constructor
 {
-    IOTA_ID,
-    SCOPE,
-    BEGIN_METHOD,
-    METHOD,
-    END_METHOD,
-    DEAD,
-    __SIZE
-}
-
-function iota_clock(_identifier) constructor
-{
+    var _identifier = (argument_count > 0)? argument[0] : undefined;
+    
     __identifier       = _identifier
     __target_framerate = game_get_speed(gamespeed_fps);
     __paused           = false;
     __accumulator      = 0;
     
-    __prev_child_id      = 0;
     __children_struct    = {};
     __begin_method_array = [];
     __method_array       = [];
@@ -26,46 +16,46 @@ function iota_clock(_identifier) constructor
     
     static tick = function()
     {
-        IOTA_CURRENT_TIMER = __identifier;
+        IOTA_CURRENT_CLOCK = __identifier;
         
         //Get the clamped delta time value for this GameMaker frame
         //We clamp the bottom end to ensure that games still chug along even if the device is really grinding
         var _delta = min(1/IOTA_MINIMUM_FRAMERATE, delta_time/1000000);
         
-        //Start off assuming this timer isn't going to want to process any cycles whatsoever
-        IOTA_CYCLES_FOR_TIMER = 0;
+        //Start off assuming this clock isn't going to want to process any cycles whatsoever
+        IOTA_CYCLES_FOR_CLOCK = 0;
         
         if (!__paused)
         {
-            //Figure out how many full cycles this timer requires based the accumulator and the timer's framerate
-            IOTA_CYCLES_FOR_TIMER = floor(__target_framerate*__accumulator);
+            //Figure out how many full cycles this clock requires based the accumulator and the clock's framerate
+            IOTA_CYCLES_FOR_CLOCK = floor(__target_framerate*__accumulator);
             
             //Any leftover time that can't fit into a full cycle add back onto the accumulator
-            __accumulator += _delta - (IOTA_CYCLES_FOR_TIMER / __target_framerate);
+            __accumulator += _delta - (IOTA_CYCLES_FOR_CLOCK / __target_framerate);
         }
         
-        if (IOTA_CYCLES_FOR_TIMER > 0)
+        if (IOTA_CYCLES_FOR_CLOCK > 0)
         {
             IOTA_CYCLE_INDEX = -1;
-            __execute_methods(__IOTA_DATA.BEGIN_METHOD);
+            __execute_methods(__IOTA_CHILD.BEGIN_METHOD);
             
             //Execute cycles one at a time
             //Note that we're processing all methods for a cycle, then move onto the next cycle
             //This ensures instances doesn't get out of step with each other
             IOTA_CYCLE_INDEX = 0;
-            repeat(IOTA_CYCLES_FOR_TIMER)
+            repeat(IOTA_CYCLES_FOR_CLOCK)
             {
-                __execute_methods(__IOTA_DATA.METHOD);
+                __execute_methods(__IOTA_CHILD.METHOD);
                 IOTA_CYCLE_INDEX++;
             }
             
-            IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_TIMER;
-            __execute_methods(__IOTA_DATA.END_METHOD);
+            IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_CLOCK;
+            __execute_methods(__IOTA_CHILD.END_METHOD);
         }
     
         //Make sure to reset these macros so they can't be accessed outside of iota methods
-        IOTA_CURRENT_TIMER    = undefined;
-        IOTA_CYCLES_FOR_TIMER = undefined;
+        IOTA_CURRENT_CLOCK    = undefined;
+        IOTA_CYCLES_FOR_CLOCK = undefined;
         IOTA_CYCLE_INDEX      = undefined;
     }
     
@@ -120,7 +110,7 @@ function iota_clock(_identifier) constructor
                 }
                 else
                 {
-                    //If this instance doesn't exist then remove it from the timer's data array + struct
+                    //If this instance doesn't exist then remove it from the clock's data array + struct
                     array_delete(_array, _i, 1);
                     variable_struct_remove(__children_struct, _child[__IOTA_CHILD.IOTA_ID]);
                     _child[@ __IOTA_CHILD.DEAD] = true;
@@ -244,21 +234,21 @@ function iota_clock(_identifier) constructor
         
             //Give this scope a unique iota ID
             //This'll save us some pain later if we need to add a different sort of method
-            __prev_child_id++;
-            variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, __prev_child_id);
+            global.__iota_unique_id++;
+            variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, global.__iota_unique_id);
         
             //Create a new data packet and set it up
-            var _child = array_create(__IOTA_DATA.__SIZE, undefined);
-            _child[@ __IOTA_CHILD.IOTA_ID] = __prev_child_id;
+            var _child = array_create(__IOTA_CHILD.__SIZE, undefined);
+            _child[@ __IOTA_CHILD.IOTA_ID] = global.__iota_unique_id;
             _child[@ __IOTA_CHILD.SCOPE  ] = (_is_instance? _id : weak_ref_create(_scope));
             _child[@ __IOTA_CHILD.DEAD   ] = false;
         
-            //Then slot this data packet into the timer's data struct + array
-            __children_struct[$ __prev_child_id] = _child;
+            //Then slot this data packet into the clock's data struct + array
+            __children_struct[$ global.__iota_unique_id] = _child;
         }
         else
         {
-            //Fetch the data packet from the timer's data struct
+            //Fetch the data packet from the clock's data struct
             _child = __children_struct[$ _child_id];
         }
         
@@ -296,3 +286,37 @@ function iota_clock(_identifier) constructor
     
     #endregion
 }
+
+
+
+
+
+#region System Stuff
+
+#macro __IOTA_VERSION  "2.0.0"
+#macro __IOTA_DATE     "2021-05-31"
+
+show_debug_message("iota: Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
+
+global.__iota_unique_id = 0;
+
+#macro IOTA_CURRENT_CLOCK     global.__iota_current_clock
+#macro IOTA_CYCLES_FOR_CLOCK  global.__iota_total_cycles
+#macro IOTA_CYCLE_INDEX       global.__iota_cycle_index
+
+IOTA_CURRENT_CLOCK    = undefined;
+IOTA_CYCLES_FOR_CLOCK = undefined;
+IOTA_CYCLE_INDEX      = undefined;
+
+enum __IOTA_CHILD
+{
+    IOTA_ID,
+    SCOPE,
+    BEGIN_METHOD,
+    METHOD,
+    END_METHOD,
+    DEAD,
+    __SIZE
+}
+
+#endregion

@@ -1,4 +1,4 @@
-if (!iota_pause_get())
+if (!obj_controller.clock.get_pause())
 {
     left_state = keyboard_check(vk_left);
     right_state = keyboard_check(vk_right);
