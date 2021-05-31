@@ -32,3 +32,18 @@ if (keyboard_check_pressed(ord("P")))
 {
     clock.set_pause(!clock.get_pause());
 }
+
+//Swap between player objects
+if (keyboard_check_pressed(ord("A")))
+{
+    if (instance_exists(obj_player))
+    {
+        instance_create_layer(obj_player.xstart, obj_player.ystart, obj_player.layer, obj_player_interpolated);
+        instance_destroy(obj_player);
+    }
+    else
+    {
+        instance_create_layer(obj_player_interpolated.xstart, obj_player_interpolated.ystart, obj_player_interpolated.layer, obj_player);
+        instance_destroy(obj_player_interpolated);
+    }
+}
