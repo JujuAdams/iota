@@ -38,6 +38,8 @@
 ///     Adds a variable to be smoothly interpolated between iota ticks. The interpolated value is passed to the given output variable name
 ///     Interpolated variables are always updated every time .tick() is called, even if the clock does not need to execute any cycles
 ///     The variable's scope is determined by who calls .variable_interpolate()
+///       N.B. Interpolated variables will always be (at most) a frame behind the actual value of the input variable
+///            Most of this time this makes no difference but it's not ideal if you're looking for frame-perfect gameplay
 ///   
 ///   
 ///   
