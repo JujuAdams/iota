@@ -325,10 +325,10 @@ function iota_clock() constructor
     ///     0 = Deactivated instance
     ///     1 = Alive instance
     ///     2 = Alive struct
-    static __scope_exists = (
-		IOTA_CHECK_FOR_DEACTIVATION? 
-		
-		function(_scope) //does deactivation check
+	
+    if (IOTA_CHECK_FOR_DEACTIVATION)
+    {
+	    static __scope_exists = function(_scope)  //does deactivation check
 	    {
 	        //If this scope is a real number then it's an instance ID
 	        if (is_real(_scope))
@@ -358,16 +358,16 @@ function iota_clock() constructor
 	            }
 	        }
 	    }
-		
-		:
-		
-		function(_scope)  //doesnt do deactivation check
+    }
+    else
+    {
+	    static __scope_exists = function(_scope)  //doesnt do deactivation check
 	    {
 	        //If this scope is a real number then it's an instance ID
 	        if (is_real(_scope))
 	        {
 	            if (instance_exists(_scope)) return 1;
-           
+				
 	            return -1;
 	        }
 	        else
@@ -383,9 +383,8 @@ function iota_clock() constructor
 	            }
 	        }
 	    }
-		
-	);
-    
+    }
+	
     static __add_method_generic = function(_scope, _function, _method_type)
     {
         switch(_method_type)
