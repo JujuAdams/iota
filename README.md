@@ -1,4 +1,4 @@
-<h1 align="center">iota 2.0.2</h1>
+<h1 align="center">iota 2.1.0</h1>
 
 <p align="center">Miniature fixed timestep library for GameMaker Studio 2.3.2 by <b>@jujuadams</b></p>
 
