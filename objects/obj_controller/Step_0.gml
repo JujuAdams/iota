@@ -27,6 +27,19 @@ if (keyboard_check_pressed(ord("G")))
     }
 }
 
+//Cycle through time dilation multipliersa
+if (keyboard_check_pressed(ord("D")))
+{
+    switch(clock.get_time_dilation())
+    {
+        case 0.27: clock.set_time_dilation(0.50); break;
+        case 0.50: clock.set_time_dilation(1.00); break;
+        case 1.00: clock.set_time_dilation(2.00); break;
+        case 2.00: clock.set_time_dilation(3.33); break;
+        case 3.33: clock.set_time_dilation(0.27); break;
+    }
+}
+
 //Pause toggle
 if (keyboard_check_pressed(ord("P")))
 {

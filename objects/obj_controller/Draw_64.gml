@@ -3,10 +3,13 @@ _string += "iota " + string(__IOTA_VERSION) + " (" + string(__IOTA_DATE) + ")\n"
 _string += "Miniature Fixed Timestep Library\n";
 _string += "@jujuadams\n\n";;
 _string += "Game target framerate: " + string(game_get_speed(gamespeed_fps)) + "FPS (actual = " + string(fps) + ")\n";
-_string += "iota target framerate: " + string(clock.get_target_framerate()) + "FPS\n\n";
+_string += "iota target framerate: " + string(clock.get_target_framerate()) + "FPS\n";
+_string += "iota time dilation: x" + string(clock.get_time_dilation()) + "\n";
+_string += "\n";
 _string += "Arrow Keys/Space: Move/Jump\n";
 _string += "G: Change game framerate\n";
 _string += "I: Change iota target framerate\n";
+_string += "D: Change time dilation\n";
 _string += "P: Toggle pause (=" + string(clock.get_pause()) + ")\n";
 
 if (instance_exists(obj_player))
