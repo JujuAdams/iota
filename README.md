@@ -6,6 +6,8 @@
 
 <p align="center">Chat about iota on the <a href="https://discord.gg/8krYCqr">Discord server</a></p>
 
+&nbsp;
+
 |[![About & Support](https://raw.githubusercontent.com/wiki/JujuAdams/scribble/images/faq.png)](https://github.com/JujuAdams/iota/wiki/About-&-Support)|[![Features](https://raw.githubusercontent.com/wiki/JujuAdams/scribble/images/features.png)](https://github.com/JujuAdams/iota/wiki/Features)|[![Setting Up](https://raw.githubusercontent.com/wiki/JujuAdams/scribble/images/setup.png)](https://github.com/JujuAdams/iota/wiki/Setting-Up)|[![GML Functions](https://raw.githubusercontent.com/wiki/JujuAdams/scribble/images/code.png)](https://github.com/JujuAdams/iota/wiki/GML-Functions)|
 |----------------------|----------------------|----------------------|----------------------|
 |<p align="center">[About & Support](https://github.com/JujuAdams/iota/wiki/About-&-Support)</p>|<p align="center">[Features](https://github.com/JujuAdams/iota/wiki/Features)</p>|<p align="center">[Setting Up](https://github.com/JujuAdams/iota/wiki/Setting-Up)</p>|<p align="center">[GML Functions](https://github.com/JujuAdams/iota/wiki/GML-Functions)</p>|
