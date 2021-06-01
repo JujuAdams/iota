@@ -29,7 +29,7 @@
     "path": "Iota.yyp",
   },
   "resourceVersion": "1.0",
-  "name": "obj_player_iota_variables",
+  "name": "obj_player_interpolated",
   "tags": [],
   "resourceType": "GMObject",
 }
