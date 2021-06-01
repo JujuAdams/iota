@@ -13,34 +13,34 @@
 ///   
 ///   
 ///   
-///   .add_cycle_method(function)
-///     Adds a function to be executed for each cycle
-///     The scope of the function added is determined by who calls .add_cycle_method()
+///   .add_cycle_method(method)
+///     Adds a method to be executed for each cycle
+///     The scope of the method passed into this function will persist
 ///     Only one cycle method can be defined per instance/struct
 ///   
-///   .add_begin_method(function)
-///     Adds a function to be executed at the start of a tick, before any cycle methods
-///     Begin methods will *not* be executed if the clock doesn't need to execute any cycles at all
-///     The scope of the function added is determined by who calls .add_begin_method()
+///   .add_begin_method(method)
+///     Adds a method to be executed at the start of a tick, before any cycle methods
+///     The scope of the method passed into this function will persist
 ///     Only one begin method can be defined per instance/struct
+///     Begin methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///   
-///   .add_end_method(function)
-///     Adds a function to be executed at the end of a tick, after all cycle methods
-///     End methods will *not* be executed if the clock doesn't need to execute any cycles at all
-///     The scope of the function added is determined by who calls .add_end_method()
+///   .add_end_method(method)
+///     Adds a method to be executed at the end of a tick, after all cycle methods
+///     The scope of the method passed into this function will persist
 ///     Only one end method can be defined per instance/struct
+///     End methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///   
 ///   
 ///   
-///   .variable_momentary(variableName, resetValue)
+///   .variable_momentary(variableName, resetValue, [scope])
 ///     Adds a variable to be automatically reset at the end of the first cycle per tick
 ///     A momentary variable will only be reset if the clock needs to execute one or more cycles
-///     The variable's scope is determined by who calls .variable_momentary()
+///     The variable's scope is typically determined by who calls .variable_momentary(), though for structs you may need to specify the optional [scope] argument
 ///   
 ///   .variable_interpolate(inputVariableName, outputVariableName)
 ///     Adds a variable to be smoothly interpolated between iota ticks. The interpolated value is passed to the given output variable name
 ///     Interpolated variables are always updated every time .tick() is called, even if the clock does not need to execute any cycles
-///     The variable's scope is determined by who calls .variable_interpolate()
+///     The variables' scope is typically determined by who calls .variable_interpolate(), though for structs you may need to specify the optional [scope] argument
 ///       N.B. Interpolated variables will always be (at most) a frame behind the actual value of the input variable
 ///            Most of this time this makes no difference but it's not ideal if you're looking for frame-perfect gameplay
 ///   
