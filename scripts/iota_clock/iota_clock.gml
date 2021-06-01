@@ -149,28 +149,32 @@ function iota_clock() constructor
     
     #region Methods Adders
     
-    static add_begin_method = function(_function)
+    static add_begin_method = function(_method)
     {
-        return __add_method_generic(other, _function, __IOTA_CHILD.BEGIN_METHOD);
+        return __add_method_generic(_method, __IOTA_CHILD.BEGIN_METHOD);
     }
     
-    static add_cycle_method = function(_function)
+    static add_cycle_method = function(_method)
     {
-        return __add_method_generic(other, _function, __IOTA_CHILD.CYCLE_METHOD);
+        return __add_method_generic(_method, __IOTA_CHILD.CYCLE_METHOD);
     }
     
-    static add_end_method = function(_function)
+    static add_end_method = function(_method)
     {
-        return __add_method_generic(other, _function, __IOTA_CHILD.END_METHOD);
+        return __add_method_generic(_method, __IOTA_CHILD.END_METHOD);
     }
     
     #endregion
     
     #region Variables
     
-    static variable_momentary = function(_name, _reset)
+    static variable_momentary = function()
     {
-        var _child_data = __get_child_data(other);
+        var _name  = argument[0];
+        var _reset = argument[1];
+        var _scope = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
+        
+        var _child_data = __get_child_data(_scope);
         var _array = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
         
         if (_array == undefined)
@@ -195,9 +199,13 @@ function iota_clock() constructor
         array_push(_array, _name, _reset);
     }
     
-    static variable_interpolate = function(_in_name, _out_name)
+    static variable_interpolate = function()
     {
-        var _child_data = __get_child_data(other);
+        var _in_name  = argument[0];
+        var _out_name = argument[1];
+        var _scope    = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
+        
+        var _child_data = __get_child_data(_scope);
         var _array = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
         
         if (_array == undefined)
@@ -219,8 +227,8 @@ function iota_clock() constructor
             _i += 3;
         }
         
-        array_push(_array, _in_name, _out_name, variable_instance_get(other, _in_name));
-        variable_instance_set(other, _out_name, variable_instance_get(other, _in_name));
+        array_push(_array, _in_name, _out_name, variable_instance_get(_scope, _in_name));
+        variable_instance_set(_scope, _out_name, variable_instance_get(_scope, _in_name));
     }
     
     #endregion
@@ -359,8 +367,10 @@ function iota_clock() constructor
         }
     }
     
-    static __add_method_generic = function(_scope, _function, _method_type)
+    static __add_method_generic = function(_method, _method_type)
     {
+        var _scope = method_get_self(_method);
+        
         switch(_method_type)
         {
             case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
@@ -375,7 +385,7 @@ function iota_clock() constructor
         
         //Set the relevant element in the data packet
         //We strip the scope off the method so we don't accidentally keep structs alive
-        _child_data[@ _method_type] = method(undefined, _function);
+        _child_data[@ _method_type] = method(undefined, _method);
     }
     
     static __get_child_data = function(_scope)
