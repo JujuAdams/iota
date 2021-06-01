@@ -49,12 +49,12 @@
 ///   .get_pause(state)
 ///     Returns whether the clock is paused
 ///     
-///   .set_target_framerate(fps)
-///     Sets the target framerate. If not set, this value will default to your game's target framerate
-///     This generally should not change, but you can sort of hack in time dilation effects by manipulating this value
+///   .set_update_frequency(frequency)
+///     Sets the update frequency. This value should generally not change once you've set it
+///     This value will default to matching your game's target framerate at the time that the clock was instantiated
 ///     
-///   .get_target_framerate()
-///     Returns the target framerate
+///   .get_update_frequency()
+///     Returns the update frequency for the clock
 ///   
 ///   .set_time_dilation(multiplier)
 ///     Sets the time dilation multiplier. A value of 1 is no time dilation, 0.5 is half speed, 2.0 is double speed
@@ -73,7 +73,7 @@ function iota_clock() constructor
     var _identifier = (argument_count > 0)? argument[0] : undefined;
     
     __identifier       = _identifier
-    __target_framerate = game_get_speed(gamespeed_fps);
+    __update_frequency = game_get_speed(gamespeed_fps);
     __paused           = false;
     __dilation         = 1.0;
     __accumulator      = 0;
@@ -102,8 +102,8 @@ function iota_clock() constructor
         if (!__paused)
         {
             __accumulator += _delta;
-            IOTA_CYCLES_FOR_CLOCK = floor(__dilation * __target_framerate * __accumulator);
-            __accumulator -= IOTA_CYCLES_FOR_CLOCK / (__dilation*__target_framerate);
+            IOTA_CYCLES_FOR_CLOCK = floor(__dilation * __update_frequency * __accumulator);
+            __accumulator -= IOTA_CYCLES_FOR_CLOCK / (__dilation*__update_frequency);
         }
         
         if (IOTA_CYCLES_FOR_CLOCK > 0)
@@ -233,14 +233,14 @@ function iota_clock() constructor
         return __paused;
     }
     
-    static set_target_framerate = function(_framerate)
+    static set_update_frequency = function(_frequency)
     {
-        __target_framerate = _framerate;
+        __update_frequency = _frequency;
     }
     
-    static get_target_framerate = function()
+    static get_update_frequency = function()
     {
-        return __target_framerate;
+        return __update_frequency;
     }
     
     static set_time_dilation = function(_multiplier)
@@ -255,7 +255,7 @@ function iota_clock() constructor
     
     static get_remainder = function()
     {
-        return __dilation*__target_framerate*__accumulator;
+        return __dilation*__update_frequency*__accumulator;
     }
     
     #endregion

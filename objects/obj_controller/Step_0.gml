@@ -3,13 +3,13 @@ clock.tick();
 //Cycle through iota target framerates
 if (keyboard_check_pressed(ord("I")))
 {
-    switch(clock.get_target_framerate())
+    switch(clock.get_update_frequency())
     {
-        case 30:  clock.set_target_framerate( 60); break;
-        case 60:  clock.set_target_framerate( 75); break;
-        case 75:  clock.set_target_framerate(120); break;
-        case 120: clock.set_target_framerate(144); break;
-        case 144: clock.set_target_framerate( 30); break;
+        case 30:  clock.set_update_frequency( 60); break;
+        case 60:  clock.set_update_frequency( 75); break;
+        case 75:  clock.set_update_frequency(120); break;
+        case 120: clock.set_update_frequency(144); break;
+        case 144: clock.set_update_frequency( 30); break;
     }
 }
 
