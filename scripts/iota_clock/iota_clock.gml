@@ -22,6 +22,16 @@
 ///     Adds a function to be executed at the end of a tick
 ///     End methods will *not* be executed if the clock doesn't need to execute cycles at all
 ///     The scope of the function added is determined by who calls .add_end_method()
+///   
+///   .variable_momentary(variableName, resetValue)
+///     Adds a variable to be automatically reset at the end of the first cycle per tick
+///     The variable's scope is determined by who calls .variable_momentary()
+///     A momentary variable will not be reset if the clock does not need to execute any cycles
+///     
+///   .variable_interpolate(inputVariableName, outputVariableName)
+///     Adds a variable to be smoothly interpolated between iota ticks
+///     The variable's scope is determined by who calls .variable_interpolate()
+///     Interpolated variables are always updated every time .tick() is called, even if the clock does not need to execute any cycles
 ///     
 ///   .set_pause(state)
 ///     Sets whether the clock is paused
