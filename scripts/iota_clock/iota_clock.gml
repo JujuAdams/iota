@@ -68,14 +68,9 @@ function iota_clock() constructor
         //Start off assuming this clock isn't going to want to process any cycles whatsoever
         IOTA_CYCLES_FOR_CLOCK = 0;
         
+        //If we're not paused, figure out how many full cycles this clock requires based the accumulator and the clock's framerate
         if (!__paused)
         {
-            ////Figure out how many full cycles this clock requires based the accumulator and the clock's framerate
-            //IOTA_CYCLES_FOR_CLOCK = floor(__target_framerate*__accumulator);
-            //
-            ////Any leftover time that can't fit into a full cycle add back onto the accumulator
-            //__accumulator += _delta - (IOTA_CYCLES_FOR_CLOCK / __target_framerate);
-            
             __accumulator += _delta;
             IOTA_CYCLES_FOR_CLOCK = floor(__target_framerate*__accumulator);
             __accumulator -= IOTA_CYCLES_FOR_CLOCK/__target_framerate;
@@ -116,89 +111,9 @@ function iota_clock() constructor
         IOTA_CYCLE_INDEX      = undefined;
     }
     
-    function __execute_methods(_method_type)
-    {
-        switch(_method_type)
-        {
-            case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
-            case __IOTA_CHILD.CYCLE_METHOD: var _array = __cycle_method_array; break;
-            case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
-        }
-        
-        var _i = 0;
-        repeat(array_length(_array))
-        {
-            var _child = _array[_i];
-            
-            //If another process found that this child no longer exists, remove it from this array too
-            if (_child[__IOTA_CHILD.DEAD])
-            {
-                array_delete(_array, _i, 1);
-                continue;
-            }
-            
-            var _scope = _child[__IOTA_CHILD.SCOPE];
-            
-            //If this scope is a real number then it's an instance ID
-            if (is_real(_scope))
-            {
-                var _exists = instance_exists(_scope);
-                var _deactivated = false;
-                
-                if (IOTA_CHECK_FOR_DEACTIVATION)
-                {
-                    //Bonus check for deactivation
-                    if (!_exists)
-                    {
-                        instance_activate_object(_scope);
-                        if (instance_exists(_scope))
-                        {
-                            instance_deactivate_object(_scope);
-                            _exists = true;
-                            _deactivated = true;
-                        }
-                    }
-                }
-            
-                if (_exists)
-                {
-                    //If this instance exists and isn't deactivated, execute our method!
-                    if (!_deactivated) with(_scope) _child[_method_type]();
-                }
-                else
-                {
-                    //If this instance doesn't exist then remove it from the clock's data array + struct
-                    array_delete(_array, _i, 1);
-                    variable_struct_remove(__children_struct, _child[__IOTA_CHILD.IOTA_ID]);
-                    _child[@ __IOTA_CHILD.DEAD] = true;
-                    continue;
-                }
-            }
-            else
-            {
-                //If the scope wasn't a real number then presumably it's a weak reference to a struct
-                if (weak_ref_alive(_scope))
-                {
-                    //If this struct exists, execute our method!
-                    with(_scope.ref) _child[_method_type]();
-                }
-                else
-                {
-                    //If this struct has been garbage collected then remove it from both the method and scope lists
-                    array_delete(_array, _i, 1);
-                    variable_struct_remove(__children_struct, _child[__IOTA_CHILD.IOTA_ID]);
-                    _child[@ __IOTA_CHILD.DEAD] = true;
-                    continue;
-                }
-            }
-        
-            ++_i;
-        }
-    }
-    
     #endregion
     
-    #region Methods
+    #region Methods Adders
     
     static add_begin_method = function(_function)
     {
@@ -213,6 +128,191 @@ function iota_clock() constructor
     static add_end_method = function(_function)
     {
         return __add_method_generic(other, _function, __IOTA_CHILD.END_METHOD);
+    }
+    
+    #endregion
+    
+    #region Variables
+    
+    static variable_momentary = function(_name, _reset)
+    {
+        var _child_data = __get_child_data(other);
+        var _array = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
+        
+        if (_array == undefined)
+        {
+            _array = [];
+            _child_data[@ __IOTA_CHILD.VARIABLES_MOMENTARY] = _array;
+            array_push(__var_momentary_array, _child_data);
+        }
+        
+        var _i = 0;
+        repeat(array_length(_array) div 2)
+        {
+            if (_array[_i] == _name)
+            {
+                //This variable already exists
+                return undefined;
+            }
+            
+            _i += 2;
+        }
+        
+        array_push(_array, _name, _reset);
+    }
+    
+    static variable_interpolate = function(_in_name, _out_name)
+    {
+        var _child_data = __get_child_data(other);
+        var _array = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+        
+        if (_array == undefined)
+        {
+            _array = [];
+            _child_data[@ __IOTA_CHILD.VARIABLES_INTERPOLATE] = _array;
+            array_push(__var_interpolate_array, _child_data);
+        }
+        
+        var _i = 0;
+        repeat(array_length(_array) div 3)
+        {
+            if (_array[_i] == _in_name)
+            {
+                //This variable already exists
+                return undefined;
+            }
+            
+            _i += 3;
+        }
+        
+        array_push(_array, _in_name, _out_name, variable_instance_get(other, _in_name));
+        variable_instance_set(other, _out_name, variable_instance_get(other, _in_name));
+    }
+    
+    #endregion
+    
+    #region Pause / Target Framerate
+    
+    static set_pause = function(_state)
+    {
+        __paused = _state;
+    }
+    
+    static get_pause = function()
+    {
+        return __paused;
+    }
+    
+    static set_target_framerate = function(_framerate)
+    {
+        __target_framerate = _framerate;
+    }
+    
+    static get_target_framerate = function()
+    {
+        return __target_framerate;
+    }
+    
+    static get_remainder = function()
+    {
+        return __target_framerate*__accumulator;
+    }
+    
+    #endregion
+    
+    #region (Private Methods)
+    
+    function __execute_methods(_method_type)
+    {
+        switch(_method_type)
+        {
+            case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
+            case __IOTA_CHILD.CYCLE_METHOD: var _array = __cycle_method_array; break;
+            case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
+        }
+        
+        var _i = 0;
+        repeat(array_length(_array))
+        {
+            var _child_data = _array[_i];
+            
+            //If another process found that this child no longer exists, remove it from this array too
+            if (_child_data[__IOTA_CHILD.DEAD])
+            {
+                array_delete(_array, _i, 1);
+                continue;
+            }
+            
+            var _scope = _child_data[__IOTA_CHILD.SCOPE];
+            switch(__scope_exists(_scope))
+            {
+                case 1: //Alive instance
+                    with(_scope) _child_data[_method_type]();
+                break;
+                
+                case 2: //Alive struct
+                    with(_scope.ref) _child_data[_method_type]();
+                break;
+                
+                case -1: //Dead instance
+                case -2: //Dead struct
+                    array_delete(_array, _i, 1);
+                    __mark_child_as_dead(_child_data);
+                    continue;
+                break;
+                
+                case 0: //Deactivated instance
+                break;
+            }
+            
+            ++_i;
+        }
+    }
+    
+    static __mark_child_as_dead = function(_child_data)
+    {
+        variable_struct_remove(__children_struct, _child_data[__IOTA_CHILD.IOTA_ID]);
+        _child_data[@ __IOTA_CHILD.DEAD] = true;
+    }
+    
+    /// Returns:
+    ///    -2 = Dead struct
+    ///    -1 = Dead instance
+    ///     0 = Deactivated instance
+    ///     1 = Alive instance
+    ///     2 = Alive struct
+    static __scope_exists = function(_scope)
+    {
+        //If this scope is a real number then it's an instance ID
+        if (is_real(_scope))
+        {
+            if (instance_exists(_scope)) return 1;
+            
+            //Bonus check for deactivation
+            if (IOTA_CHECK_FOR_DEACTIVATION)
+            {
+                instance_activate_object(_scope);
+                if (instance_exists(_scope))
+                {
+                    instance_deactivate_object(_scope);
+                    return 0;
+                }
+            }
+            
+            return -1;
+        }
+        else
+        {
+            //If the scope wasn't a real number then presumably it's a weak reference to a struct
+            if (weak_ref_alive(_scope))
+            {
+                return 2;
+            }
+            else
+            {
+                return -2;
+            }
+        }
     }
     
     static __add_method_generic = function(_scope, _function, _method_type)
@@ -324,79 +424,45 @@ function iota_clock() constructor
         return _child_data;
     }
     
-    #endregion
-    
-    #region Variables
-    
-    static variable_momentary = function(_name, _reset)
-    {
-        var _child_data = __get_child_data(other);
-        var _array = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
-        
-        if (_array == undefined)
-        {
-            _array = [];
-            _child_data[@ __IOTA_CHILD.VARIABLES_MOMENTARY] = _array;
-            array_push(__var_momentary_array, _child_data);
-        }
-        
-        var _i = 0;
-        repeat(array_length(_array) div 2)
-        {
-            if (_array[_i] == _name)
-            {
-                //This variable already exists
-                return undefined;
-            }
-            
-            _i += 2;
-        }
-        
-        array_push(_array, _name, _reset);
-    }
-    
-    static variable_interpolate = function(_in_name, _out_name)
-    {
-        var _child_data = __get_child_data(other);
-        var _array = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
-        
-        if (_array == undefined)
-        {
-            _array = [];
-            _child_data[@ __IOTA_CHILD.VARIABLES_INTERPOLATE] = _array;
-            array_push(__var_interpolate_array, _child_data);
-        }
-        
-        var _i = 0;
-        repeat(array_length(_array) div 3)
-        {
-            if (_array[_i] == _in_name)
-            {
-                //This variable already exists
-                return undefined;
-            }
-            
-            _i += 3;
-        }
-        
-        array_push(_array, _in_name, _out_name, variable_instance_get(other, _in_name));
-        variable_instance_set(other, _out_name, variable_instance_get(other, _in_name));
-    }
-    
     static __variables_momentary_reset = function()
     {
+        var _array = __var_momentary_array;
+        
         var _i = 0;
-        repeat(array_length(__var_momentary_array))
+        repeat(array_length(_array))
         {
-            var _child_data = __var_momentary_array[_i];
-            var _scope     = _child_data[__IOTA_CHILD.SCOPE              ];
-            var _variables = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
+            var _child_data = _array[_i];
             
-            var _j = 0;
-            repeat(array_length(_variables) div 2)
+            //If another process found that this child no longer exists, remove it from this array too
+            if (_child_data[__IOTA_CHILD.DEAD])
             {
-                variable_instance_set(_scope, _variables[_i], _variables[_i+1]);
-                _j += 2;
+                array_delete(_array, _i, 1);
+                continue;
+            }
+            
+            var _scope = _child_data[__IOTA_CHILD.SCOPE];
+            switch(__scope_exists(_scope))
+            {
+                case 1: //Alive instance
+                case 2: //Alive struct
+                    var _variables = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
+                    var _j = 0;
+                    repeat(array_length(_variables) div 2)
+                    {
+                        variable_instance_set(_scope, _variables[_i], _variables[_i+1]);
+                        _j += 2;
+                    }
+                break;
+                
+                case -1: //Dead instance
+                case -2: //Dead struct
+                    array_delete(_array, _i, 1);
+                    __mark_child_as_dead(_child_data);
+                    continue;
+                break;
+                
+                case 0: //Deactivated instance
+                break;
             }
             
             ++_i;
@@ -405,18 +471,43 @@ function iota_clock() constructor
     
     static __variables_interpolate_refresh = function()
     {
+        var _array = __var_interpolate_array;
+        
         var _i = 0;
-        repeat(array_length(__var_interpolate_array))
+        repeat(array_length(_array))
         {
-            var _child_data = __var_interpolate_array[_i];
-            var _scope     = _child_data[__IOTA_CHILD.SCOPE                ];
-            var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+            var _child_data = _array[_i];
             
-            var _j = 0;
-            repeat(array_length(_variables) div 3)
+            //If another process found that this child no longer exists, remove it from this array too
+            if (_child_data[__IOTA_CHILD.DEAD])
             {
-                _variables[@ _j+2] = variable_instance_get(_scope, _variables[_j]);
-                _j += 3;
+                array_delete(_array, _i, 1);
+                continue;
+            }
+            
+            var _scope = _child_data[__IOTA_CHILD.SCOPE];
+            switch(__scope_exists(_scope))
+            {
+                case 1: //Alive instance
+                case 2: //Alive struct
+                    var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+                    var _j = 0;
+                    repeat(array_length(_variables) div 3)
+                    {
+                        _variables[@ _j+2] = variable_instance_get(_scope, _variables[_j]);
+                        _j += 3;
+                    }
+                break;
+                
+                case -1: //Dead instance
+                case -2: //Dead struct
+                    array_delete(_array, _i, 1);
+                    __mark_child_as_dead(_child_data);
+                    continue;
+                break;
+                
+                case 0: //Deactivated instance
+                break;
             }
             
             ++_i;
@@ -426,52 +517,47 @@ function iota_clock() constructor
     static __variables_interpolate_update = function()
     {
         var _remainder = get_remainder();
+        var _array = __var_interpolate_array;
         
         var _i = 0;
-        repeat(array_length(__var_interpolate_array))
+        repeat(array_length(_array))
         {
-            var _child_data = __var_interpolate_array[_i];
-            var _scope     = _child_data[__IOTA_CHILD.SCOPE                ];
-            var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+            var _child_data = _array[_i];
             
-            var _j = 0;
-            repeat(array_length(_variables) div 3)
+            //If another process found that this child no longer exists, remove it from this array too
+            if (_child_data[__IOTA_CHILD.DEAD])
             {
-                variable_instance_set(_scope, _variables[_j+1], lerp(_variables[_j+2], variable_instance_get(_scope, _variables[_j]), _remainder));
-                _j += 3;
+                array_delete(_array, _i, 1);
+                continue;
+            }
+            
+            var _scope = _child_data[__IOTA_CHILD.SCOPE];
+            switch(__scope_exists(_scope))
+            {
+                case 1: //Alive instance
+                case 2: //Alive struct
+                    var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+                    var _j = 0;
+                    repeat(array_length(_variables) div 3)
+                    {
+                        variable_instance_set(_scope, _variables[_j+1], lerp(_variables[_j+2], variable_instance_get(_scope, _variables[_j]), _remainder));
+                        _j += 3;
+                    }
+                break;
+                
+                case -1: //Dead instance
+                case -2: //Dead struct
+                    array_delete(_array, _i, 1);
+                    __mark_child_as_dead(_child_data);
+                    continue;
+                break;
+                
+                case 0: //Deactivated instance
+                break;
             }
             
             ++_i;
         }
-    }
-    
-    #endregion
-    
-    #region Pause / Target Framerate
-    
-    static set_pause = function(_state)
-    {
-        __paused = _state;
-    }
-    
-    static get_pause = function()
-    {
-        return __paused;
-    }
-    
-    static set_target_framerate = function(_framerate)
-    {
-        __target_framerate = _framerate;
-    }
-    
-    static get_target_framerate = function()
-    {
-        return __target_framerate;
-    }
-    
-    static get_remainder = function()
-    {
-        return __target_framerate*__accumulator;
     }
     
     #endregion
