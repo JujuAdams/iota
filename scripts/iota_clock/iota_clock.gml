@@ -2,37 +2,45 @@
 /// 
 /// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .tick() method is called
 /// 
+/// 
+/// 
 /// iota clocks have the following public methods:
 /// 
 ///   .tick()
 ///     Updates the clock and executes methods
 ///     A clock will execute enough cycles to match the target framerate to the actual framerate
 ///     This might mean a clock will execute zero cycles, sometimes multiple cycles
-///     
+///   
+///   
+///   
 ///   .add_cycle_method(function)
 ///     Adds a function to be executed for each cycle
 ///     The scope of the function added is determined by who calls .add_method()
-///     
+///   
 ///   .add_begin_method(function)
 ///     Adds a function to be executed at the start of a tick
 ///     Begin methods will *not* be executed if the clock doesn't need to execute cycles at all
 ///     The scope of the function added is determined by who calls .add_begin_method()
-///     
+///   
 ///   .add_end_method(function)
 ///     Adds a function to be executed at the end of a tick
 ///     End methods will *not* be executed if the clock doesn't need to execute cycles at all
 ///     The scope of the function added is determined by who calls .add_end_method()
 ///   
+///   
+///   
 ///   .variable_momentary(variableName, resetValue)
 ///     Adds a variable to be automatically reset at the end of the first cycle per tick
 ///     The variable's scope is determined by who calls .variable_momentary()
 ///     A momentary variable will not be reset if the clock does not need to execute any cycles
-///     
+///   
 ///   .variable_interpolate(inputVariableName, outputVariableName)
 ///     Adds a variable to be smoothly interpolated between iota ticks
 ///     The variable's scope is determined by who calls .variable_interpolate()
 ///     Interpolated variables are always updated every time .tick() is called, even if the clock does not need to execute any cycles
-///     
+///   
+///   
+///   
 ///   .set_pause(state)
 ///     Sets whether the clock is paused
 ///     
@@ -45,9 +53,17 @@
 ///     
 ///   .get_target_framerate()
 ///     Returns the target framerate
+///   
+///   .set_time_dilation(multiplier)
+///     Sets the time dilation multiplier. A value of 1 is no time dilation, 0.5 is half speed, 2.0 is double speed
+///     
+///   .get_time_dilation(state)
+///     Returns the time dilation multiplier
 ///     
 ///   .get_remainder()
 ///     Returns the remainder on the accumulator
+
+
 
 function iota_clock() constructor
 {
@@ -56,6 +72,7 @@ function iota_clock() constructor
     __identifier       = _identifier
     __target_framerate = game_get_speed(gamespeed_fps);
     __paused           = false;
+    __dilation         = 1.0;
     __accumulator      = 0;
     
     __children_struct       = {};
@@ -82,8 +99,8 @@ function iota_clock() constructor
         if (!__paused)
         {
             __accumulator += _delta;
-            IOTA_CYCLES_FOR_CLOCK = floor(__target_framerate*__accumulator);
-            __accumulator -= IOTA_CYCLES_FOR_CLOCK/__target_framerate;
+            IOTA_CYCLES_FOR_CLOCK = floor(__dilation * __target_framerate * __accumulator);
+            __accumulator -= IOTA_CYCLES_FOR_CLOCK / (__dilation*__target_framerate);
         }
         
         if (IOTA_CYCLES_FOR_CLOCK > 0)
@@ -201,7 +218,7 @@ function iota_clock() constructor
     
     #endregion
     
-    #region Pause / Target Framerate
+    #region Pause / Target Framerate / Time Dilation
     
     static set_pause = function(_state)
     {
@@ -223,9 +240,19 @@ function iota_clock() constructor
         return __target_framerate;
     }
     
+    static set_time_dilation = function(_multiplier)
+    {
+        __dilation = _multiplier;
+    }
+    
+    static get_time_dilation = function()
+    {
+        return __dilation;
+    }
+    
     static get_remainder = function()
     {
-        return __target_framerate*__accumulator;
+        return __dilation*__target_framerate*__accumulator;
     }
     
     #endregion
