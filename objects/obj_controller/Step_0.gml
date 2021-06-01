@@ -54,7 +54,7 @@ if (keyboard_check_pressed(ord("A")))
         instance_create_layer(obj_player.xstart, obj_player.ystart, obj_player.layer, obj_player_interpolated);
         instance_destroy(obj_player);
     }
-    else
+    else if (instance_exists(obj_player_interpolated))
     {
         instance_create_layer(obj_player_interpolated.xstart, obj_player_interpolated.ystart, obj_player_interpolated.layer, obj_player);
         instance_destroy(obj_player_interpolated);

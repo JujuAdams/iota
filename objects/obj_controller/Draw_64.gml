@@ -16,7 +16,7 @@ if (instance_exists(obj_player))
 {
     _string += "A: Swap to interpolated motion\n";
 }
-else
+else if (instance_exists(obj_player_interpolated))
 {
     _string += "A: Swap to non-interpolated motion\n";
 }
