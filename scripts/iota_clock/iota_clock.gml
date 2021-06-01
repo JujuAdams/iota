@@ -8,29 +8,32 @@
 /// 
 ///   .tick()
 ///     Updates the clock and executes methods
-///     A clock will execute enough cycles to match the target framerate to the actual framerate
+///     A clock will execute enough cycles to match its realtime update frequency
 ///     This means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick
 ///   
 ///   
 ///   
 ///   .add_cycle_method(function)
 ///     Adds a function to be executed for each cycle
-///     The scope of the function added is determined by who calls .add_method()
+///     The scope of the function added is determined by who calls .add_cycle_method()
+///     Only one cycle method can be defined per instance/struct
 ///   
 ///   .add_begin_method(function)
 ///     Adds a function to be executed at the start of a tick, before any cycle methods
 ///     Begin methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///     The scope of the function added is determined by who calls .add_begin_method()
+///     Only one begin method can be defined per instance/struct
 ///   
 ///   .add_end_method(function)
 ///     Adds a function to be executed at the end of a tick, after all cycle methods
 ///     End methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///     The scope of the function added is determined by who calls .add_end_method()
+///     Only one end method can be defined per instance/struct
 ///   
 ///   
 ///   
 ///   .variable_momentary(variableName, resetValue)
-///     Adds a variable to be automatically reset at the end of the first cycle (per tick)
+///     Adds a variable to be automatically reset at the end of the first cycle per tick
 ///     A momentary variable will only be reset if the clock needs to execute one or more cycles
 ///     The variable's scope is determined by who calls .variable_momentary()
 ///   
@@ -45,12 +48,13 @@
 ///   
 ///   .set_pause(state)
 ///     Sets whether the clock is paused
+///     A paused clock will execute no methods nor modify any variables
 ///     
 ///   .get_pause(state)
 ///     Returns whether the clock is paused
 ///     
 ///   .set_update_frequency(frequency)
-///     Sets the update frequency. This value should generally not change once you've set it
+///     Sets the update frequency for the clock. This value should generally not change once you've set it
 ///     This value will default to matching your game's target framerate at the time that the clock was instantiated
 ///     
 ///   .get_update_frequency()
