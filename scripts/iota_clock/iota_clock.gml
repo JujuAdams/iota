@@ -9,7 +9,7 @@
 ///   .tick()
 ///     Updates the clock and executes methods
 ///     A clock will execute enough cycles to match the target framerate to the actual framerate
-///     This might mean a clock will execute zero cycles, sometimes multiple cycles
+///     This means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick
 ///   
 ///   
 ///   
@@ -18,26 +18,26 @@
 ///     The scope of the function added is determined by who calls .add_method()
 ///   
 ///   .add_begin_method(function)
-///     Adds a function to be executed at the start of a tick
-///     Begin methods will *not* be executed if the clock doesn't need to execute cycles at all
+///     Adds a function to be executed at the start of a tick, before any cycle methods
+///     Begin methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///     The scope of the function added is determined by who calls .add_begin_method()
 ///   
 ///   .add_end_method(function)
-///     Adds a function to be executed at the end of a tick
-///     End methods will *not* be executed if the clock doesn't need to execute cycles at all
+///     Adds a function to be executed at the end of a tick, after all cycle methods
+///     End methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///     The scope of the function added is determined by who calls .add_end_method()
 ///   
 ///   
 ///   
 ///   .variable_momentary(variableName, resetValue)
-///     Adds a variable to be automatically reset at the end of the first cycle per tick
+///     Adds a variable to be automatically reset at the end of the first cycle (per tick)
+///     A momentary variable will only be reset if the clock needs to execute one or more cycles
 ///     The variable's scope is determined by who calls .variable_momentary()
-///     A momentary variable will not be reset if the clock does not need to execute any cycles
 ///   
 ///   .variable_interpolate(inputVariableName, outputVariableName)
-///     Adds a variable to be smoothly interpolated between iota ticks
-///     The variable's scope is determined by who calls .variable_interpolate()
+///     Adds a variable to be smoothly interpolated between iota ticks. The interpolated value is passed to the given output variable name
 ///     Interpolated variables are always updated every time .tick() is called, even if the clock does not need to execute any cycles
+///     The variable's scope is determined by who calls .variable_interpolate()
 ///   
 ///   
 ///   
@@ -56,6 +56,7 @@
 ///   
 ///   .set_time_dilation(multiplier)
 ///     Sets the time dilation multiplier. A value of 1 is no time dilation, 0.5 is half speed, 2.0 is double speed
+///     Time dilation values cannot be set lower than 0
 ///     
 ///   .get_time_dilation(state)
 ///     Returns the time dilation multiplier
@@ -242,7 +243,7 @@ function iota_clock() constructor
     
     static set_time_dilation = function(_multiplier)
     {
-        __dilation = _multiplier;
+        __dilation = max(0, _multiplier);
     }
     
     static get_time_dilation = function()
