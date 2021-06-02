@@ -333,36 +333,62 @@ function iota_clock() constructor
     ///     0 = Deactivated instance
     ///     1 = Alive instance
     ///     2 = Alive struct
-    static __scope_exists = function(_scope)
+
+    if (IOTA_CHECK_FOR_DEACTIVATION)
     {
-        //If this scope is a real number then it's an instance ID
-        if (is_real(_scope))
+        static __scope_exists = function(_scope)  //does deactivation check
         {
-            if (instance_exists(_scope)) return 1;
-            
-            //Bonus check for deactivation
-            if (IOTA_CHECK_FOR_DEACTIVATION)
+            //If this scope is a real number then it's an instance ID
+            if (is_real(_scope))
             {
+                if (instance_exists(_scope)) return 1;
+            
+                //Bonus check for deactivation
                 instance_activate_object(_scope);
                 if (instance_exists(_scope))
                 {
                     instance_deactivate_object(_scope);
                     return 0;
                 }
-            }
             
-            return -1;
-        }
-        else
-        {
-            //If the scope wasn't a real number then presumably it's a weak reference to a struct
-            if (weak_ref_alive(_scope))
-            {
-                return 2;
+                return -1;
             }
             else
             {
-                return -2;
+                //If the scope wasn't a real number then presumably it's a weak reference to a struct
+                if (weak_ref_alive(_scope))
+                {
+                    return 2;
+                }
+                else
+                {
+                    return -2;
+                }
+            }
+        }
+    }
+    else
+    {
+        static __scope_exists = function(_scope)  //doesnt do deactivation check
+        {
+            //If this scope is a real number then it's an instance ID
+            if (is_real(_scope))
+               {
+                if (instance_exists(_scope)) return 1;
+                
+                return -1;
+                }
+                else
+                {
+                //If the scope wasn't a real number then presumably it's a weak reference to a struct
+                if (weak_ref_alive(_scope))
+                {
+                    return 2;
+                }
+                else
+                {
+                    return -2;
+                }
             }
         }
     }
