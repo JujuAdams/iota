@@ -632,8 +632,8 @@ function iota_clock() constructor
 
 #region (System)
 
-#macro __IOTA_VERSION  "2.1.1"
-#macro __IOTA_DATE     "2021-06-01"
+#macro __IOTA_VERSION  "2.2.0"
+#macro __IOTA_DATE     "2021-06-07"
 
 show_debug_message("iota: Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
 
