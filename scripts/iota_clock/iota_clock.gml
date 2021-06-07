@@ -46,6 +46,18 @@
 ///   
 ///   
 ///   
+///   .add_alarm(milliseconds, method)
+///     Adds a method to be executed after the given number of milliseconds have passed for this clock
+///     The scope of the method is maintained. If the instance/struct attached to the method is removed, the method will not execute
+///     iota alarms respect time dilation and pausing - N.B. Changing a clock's update frequency will cause alarms to desynchronise
+///   
+///   .add_alarm_cycles(cycles, method)
+///     Adds a method to be executed after the given number of cycles have passed for this clock
+///     The scope of the method is maintained. If the instance/struct attached to the method is removed, the method will not execute
+///     iota alarms respect time dilation and pausing - N.B. Changing a clock's update frequency will cause alarms to desynchronise
+///   
+///   
+///   
 ///   .set_pause(state)
 ///     Sets whether the clock is paused
 ///     A paused clock will execute no methods nor modify any variables
@@ -54,7 +66,7 @@
 ///     Returns whether the clock is paused
 ///     
 ///   .set_update_frequency(frequency)
-///     Sets the update frequency for the clock. This value should generally not change once you've set it
+///     Sets the update frequency for the clock. This value should generally not be changed once you've set it
 ///     This value will default to matching your game's target framerate at the time that the clock was instantiated
 ///     
 ///   .get_update_frequency()
@@ -88,6 +100,7 @@ function iota_clock() constructor
     __end_method_array      = [];
     __var_momentary_array   = [];
     __var_interpolate_array = [];
+    __alarm_array           = [];
     
     #region Tick
     
@@ -123,6 +136,19 @@ function iota_clock() constructor
             {
                 //Capture interpolated variable state before the final cycle
                 if (IOTA_CYCLE_INDEX == IOTA_CYCLES_FOR_CLOCK-1) __variables_interpolate_refresh();
+                
+                var _i = 0;
+                repeat(array_length(__alarm_array))
+                {
+                    if (__alarm_array[_i].__Tick())
+                    {
+                        array_delete(__alarm_array, _i, 1);
+                    }
+                    else
+                    {
+                        ++_i;
+                    }
+                }
                 
                 __execute_methods(__IOTA_CHILD.CYCLE_METHOD);
                 
@@ -233,6 +259,20 @@ function iota_clock() constructor
     
     #endregion
     
+    #region Alarms
+    
+    static add_alarm = function(_time, _method)
+    {
+        return new __iota_class_alarm(self, (_time / 1000) * get_update_frequency(), _method);
+    }
+    
+    static add_alarm_cycles = function(_cycles, _method)
+    {
+        return new __iota_class_alarm(self, _cycles, _method);
+    }
+    
+    #endregion
+    
     #region Pause / Target Framerate / Time Dilation
     
     static set_pause = function(_state)
@@ -296,7 +336,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__scope_exists(_scope))
+            switch(__iota_scope_exists(_scope))
             {
                 case 1: //Alive instance
                     with(_scope) _child_data[_method_type]();
@@ -325,58 +365,6 @@ function iota_clock() constructor
     {
         variable_struct_remove(__children_struct, _child_data[__IOTA_CHILD.IOTA_ID]);
         _child_data[@ __IOTA_CHILD.DEAD] = true;
-    }
-    
-    /// Returns:
-    ///    -2 = Dead struct
-    ///    -1 = Dead instance
-    ///     0 = Deactivated instance
-    ///     1 = Alive instance
-    ///     2 = Alive struct
-    if (IOTA_CHECK_FOR_DEACTIVATION)
-    {
-        static __scope_exists = function(_scope)  //does deactivation check
-        {
-            if (is_real(_scope))
-            {
-                //If this scope is a real number then it's an instance ID
-                if (instance_exists(_scope)) return 1;
-                
-                //Bonus check for deactivation
-                instance_activate_object(_scope);
-                if (instance_exists(_scope))
-                {
-                    instance_deactivate_object(_scope);
-                    return 0;
-                }
-            
-                return -1;
-            }
-            else
-            {
-                //If the scope wasn't a real number then presumably it's a weak reference to a struct
-                if (weak_ref_alive(_scope)) return 2;
-                return -2;
-            }
-        }
-    }
-    else
-    {
-        static __scope_exists = function(_scope)  //doesnt do deactivation check
-        {
-            if (is_real(_scope))
-            {
-                //If this scope is a real number then it's an instance ID
-                if (instance_exists(_scope)) return 1;
-                return -1;
-            }
-            else
-            {
-                //If the scope wasn't a real number then presumably it's a weak reference to a struct
-                if (weak_ref_alive(_scope)) return 2;
-                return -2;
-            }
-        }
     }
     
     static __add_method_generic = function(_method, _method_type)
@@ -507,7 +495,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__scope_exists(_scope))
+            switch(__iota_scope_exists(_scope))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
@@ -555,7 +543,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__scope_exists(_scope))
+            switch(__iota_scope_exists(_scope))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
@@ -604,7 +592,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__scope_exists(_scope))
+            switch(__iota_scope_exists(_scope))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
@@ -670,6 +658,171 @@ enum __IOTA_CHILD
     VARIABLES_MOMENTARY,
     VARIABLES_INTERPOLATE,
     __SIZE
+}
+
+
+
+
+
+function __iota_class_alarm(_clock, _cycles, _method) constructor
+{
+    __clock     = undefined;
+    __total     = undefined;
+    __remaining = undefined;
+    __func      = undefined;
+    __scope     = undefined;
+    
+    var _scope = __iota_get_scope(method_get_self(_method));
+    if (_scope != undefined)
+    {
+        __clock     = _clock;
+        __total     = _cycles;
+        __remaining = _cycles;
+        __func      = method(undefined, _method);
+        __scope     = _scope;
+        
+        array_push(__clock.__alarm_array, self);
+    }
+    
+    
+    
+    static Cancel = function()
+    {
+        if (__clock == undefined) return undefined;
+        
+        var _array = __clock.__alarm_array;
+        var _i = 0;
+        repeat(array_length(_array))
+        {
+            if (_array[_i] == self)
+            {
+                array_delete(_array, _i, 1);
+                break;
+            }
+                    
+            ++_i;
+        }
+        
+        __clock = undefined;
+    }
+    
+    
+    
+    #region (Private Methods)
+    
+    static __Tick = function()
+    {
+        __remaining--;
+        if (__remaining <= 0)
+        {
+            if (__iota_scope_exists(__scope))
+            {
+                var _func = __func;
+                with(__scope) _func();
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    #endregion
+}
+
+
+
+function __iota_get_scope(_scope)
+{
+    var _is_instance = false;
+    var _is_struct   = false;
+    var _id          = undefined;
+    
+    //If the scope is a real number then presume it's an instance ID
+    if (is_real(_scope))
+    {
+        //We found a valid instance ID so let's set some variables based on that
+        //Changing scope here works around some bugs in GameMaker that I don't think exist any more?
+        with(_scope)
+        {
+            _scope = self;
+            _is_instance = true;
+            _id = id;
+            break;
+        }
+    }
+    else
+    {
+        //Sooooometimes we might get given a struct which is actually an instance
+        //Despite being able to read struct variable, it doesn't report as a struct... which is weird
+        //Anyway, this check works around that!
+        var _id = variable_instance_get(_scope, "id");
+        if (is_real(_id) && !is_struct(_scope))
+        {
+            if (instance_exists(_id))
+            {
+                _is_instance = true;
+            }
+            else
+            {
+                //Do a deactivation check here too, why not
+                if (IOTA_CHECK_FOR_DEACTIVATION)
+                {
+                    instance_activate_object(_id);
+                    if (instance_exists(_id))
+                    {
+                        _is_instance = true;
+                        instance_deactivate_object(_id);
+                    }
+                }
+            }
+        }
+        else if (is_struct(_scope))
+        {
+            _is_struct = true;
+        }
+    }
+    
+    if (_is_instance || _is_struct)
+    {
+        return (_is_instance? _id : weak_ref_create(_scope));
+    }
+}
+
+
+
+/// Returns:
+///    -2 = Dead struct
+///    -1 = Dead instance
+///     0 = Deactivated instance
+///     1 = Alive instance
+///     2 = Alive struct
+function __iota_scope_exists(_scope) //Does do deactivation check
+{
+    if (is_real(_scope))
+    {
+        //If this scope is a real number then it's an instance ID
+        if (instance_exists(_scope)) return 1;
+            
+        if (IOTA_CHECK_FOR_DEACTIVATION)
+        {
+            //Bonus check for deactivation
+            instance_activate_object(_scope);
+            if (instance_exists(_scope))
+            {
+                instance_deactivate_object(_scope);
+                return 0;
+            }
+        }
+            
+        return -1;
+    }
+    else
+    {
+        //If the scope wasn't a real number then presumably it's a weak reference to a struct
+        if (weak_ref_alive(_scope)) return 2;
+        return -2;
+    }
 }
 
 #endregion
