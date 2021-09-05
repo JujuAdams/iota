@@ -1,4 +1,4 @@
-<h1 align="center">iota 2.2.0</h1>
+<h1 align="center">iota 2.3.0</h1>
 
 <p align="center">Miniature delta time and time dilation library for GameMaker Studio 2.3.2 by <b>@jujuadams</b></p>
 
