@@ -116,7 +116,7 @@ function iota_clock() constructor
         IOTA_CYCLES_FOR_CLOCK = 0;
         
         //If we're not paused, figure out how many full cycles this clock requires based the accumulator and the clock's framerate
-        if (!__paused)
+        if (!__paused && (__dilation > 0))
         {
             __accumulator += _delta;
             IOTA_CYCLES_FOR_CLOCK = floor(__dilation * __update_frequency * __accumulator);
@@ -163,7 +163,7 @@ function iota_clock() constructor
         }
         
         //Update our output interpolated variables
-        if (!__paused) __variables_interpolate_update();
+        if (!__paused && (__dilation > 0)) __variables_interpolate_update();
     
         //Make sure to reset these macros so they can't be accessed outside of iota methods
         IOTA_CURRENT_CLOCK    = undefined;
