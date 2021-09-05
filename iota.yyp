@@ -1,5 +1,6 @@
 {
   "resources": [
+    {"id":{"name":"obj_test_angle","path":"objects/obj_test_angle/obj_test_angle.yy",},"order":2,},
     {"id":{"name":"obj_test_struct","path":"objects/obj_test_struct/obj_test_struct.yy",},"order":0,},
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},"order":2,},
     {"id":{"name":"obj_player_interpolated","path":"objects/obj_player_interpolated/obj_player_interpolated.yy",},"order":3,},

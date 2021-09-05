@@ -44,6 +44,9 @@
 ///       N.B. Interpolated variables will always be (at most) a frame behind the actual value of the input variable
 ///            Most of this time this makes no difference but it's not ideal if you're looking for frame-perfect gameplay
 ///   
+///   .variable_interpolate_angle(inputVariableName, outputVariableName)
+///     As above, but the value is interpolated as an angle measured in degrees. The output value will be an angle from -360 to +360.
+///   
 ///   
 ///   
 ///   .add_alarm(milliseconds, method)
@@ -211,7 +214,7 @@ function iota_clock() constructor
         }
         
         var _i = 0;
-        repeat(array_length(_array) div 2)
+        repeat(array_length(_array) div __IOTA_MOMENTARY_VARIABLE.__SIZE)
         {
             if (_array[_i] == _name)
             {
@@ -219,7 +222,7 @@ function iota_clock() constructor
                 return undefined;
             }
             
-            _i += 2;
+            _i += __IOTA_MOMENTARY_VARIABLE.__SIZE;
         }
         
         array_push(_array, _name, _reset);
@@ -231,6 +234,20 @@ function iota_clock() constructor
         var _out_name = argument[1];
         var _scope    = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
         
+        return __variable_interpolate_common(_in_name, _out_name, _scope, false);
+    }
+    
+    static variable_interpolate_angle = function()
+    {
+        var _in_name  = argument[0];
+        var _out_name = argument[1];
+        var _scope    = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
+        
+        return __variable_interpolate_common(_in_name, _out_name, _scope, true);
+    }
+    
+    static __variable_interpolate_common = function(_in_name, _out_name, _scope, _is_angle)
+    {
         var _child_data = __get_child_data(_scope);
         var _array = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
         
@@ -242,7 +259,7 @@ function iota_clock() constructor
         }
         
         var _i = 0;
-        repeat(array_length(_array) div 3)
+        repeat(array_length(_array) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
         {
             if (_array[_i] == _in_name)
             {
@@ -250,10 +267,10 @@ function iota_clock() constructor
                 return undefined;
             }
             
-            _i += 3;
+            _i += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
         }
         
-        array_push(_array, _in_name, _out_name, variable_instance_get(_scope, _in_name));
+        array_push(_array, _in_name, _out_name, variable_instance_get(_scope, _in_name), _is_angle);
         variable_instance_set(_scope, _out_name, variable_instance_get(_scope, _in_name));
     }
     
@@ -504,10 +521,10 @@ function iota_clock() constructor
                     
                     var _variables = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
                     var _j = 0;
-                    repeat(array_length(_variables) div 2)
+                    repeat(array_length(_variables) div __IOTA_MOMENTARY_VARIABLE.__SIZE)
                     {
-                        variable_instance_set(_scope, _variables[_i], _variables[_i+1]);
-                        _j += 2;
+                        variable_instance_set(_scope, _variables[_j + __IOTA_MOMENTARY_VARIABLE.NAME], _variables[_j + __IOTA_MOMENTARY_VARIABLE.DEFAULT_VALUE]);
+                        _j += __IOTA_MOMENTARY_VARIABLE.__SIZE;
                     }
                 break;
                 
@@ -552,10 +569,10 @@ function iota_clock() constructor
                     
                     var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
                     var _j = 0;
-                    repeat(array_length(_variables) div 3)
+                    repeat(array_length(_variables) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
                     {
-                        _variables[@ _j+2] = variable_instance_get(_scope, _variables[_j]);
-                        _j += 3;
+                        _variables[@ _j + __IOTA_INTERPOLATED_VARIABLE.PREV_VALUE] = variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.IN_NAME]);
+                        _j += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
                     }
                 break;
                 
@@ -601,10 +618,21 @@ function iota_clock() constructor
                     
                     var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
                     var _j = 0;
-                    repeat(array_length(_variables) div 3)
+                    repeat(array_length(_variables) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
                     {
-                        variable_instance_set(_scope, _variables[_j+1], lerp(_variables[_j+2], variable_instance_get(_scope, _variables[_j]), _remainder));
-                        _j += 3;
+                        if (_variables[_j + __IOTA_INTERPOLATED_VARIABLE.IS_ANGLE])
+                        {
+                            var _old_value = _variables[_j + __IOTA_INTERPOLATED_VARIABLE.PREV_VALUE];
+                            var _new_value = _old_value + _remainder*angle_difference(variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.IN_NAME]), _old_value);
+                        }
+                        else
+                        {
+                            var _new_value = lerp(_variables[_j + __IOTA_INTERPOLATED_VARIABLE.PREV_VALUE], variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.IN_NAME]), _remainder);
+                        }
+                        
+                        variable_instance_set(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.OUT_NAME], _new_value);
+                        
+                        _j += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
                     }
                 break;
                 
@@ -658,6 +686,23 @@ enum __IOTA_CHILD
     VARIABLES_MOMENTARY,
     VARIABLES_INTERPOLATE,
     __SIZE
+}
+
+enum __IOTA_MOMENTARY_VARIABLE
+{
+    NAME,
+    DEFAULT_VALUE,
+    __SIZE,
+}
+
+
+enum __IOTA_INTERPOLATED_VARIABLE
+{
+    IN_NAME,
+    OUT_NAME,
+    PREV_VALUE,
+    IS_ANGLE,
+    __SIZE,
 }
 
 
