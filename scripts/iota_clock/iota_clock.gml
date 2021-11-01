@@ -663,7 +663,7 @@ function iota_clock() constructor
 #macro __IOTA_VERSION  "2.3.0"
 #macro __IOTA_DATE     "2021-09-05"
 
-show_debug_message("iota: Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
+__iota_trace("Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
 
 global.__iota_unique_id = 0;
 
@@ -728,6 +728,10 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
         
         array_push(__clock.__alarm_array, self);
     }
+    else
+    {
+        __iota_trace("Warning! Scope was <undefined>, alarm will never execute (stack = ", debug_get_callstack(), ")");
+    }
     
     
     
@@ -764,6 +768,10 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
             {
                 var _func = __func;
                 with(__scope) _func();
+            }
+            else
+            {
+                __iota_trace("Warning! Scope was for alarm no longer exists, alarm will never execute (stack = ", debug_get_callstack(), ")");
             }
             
             return true;
@@ -868,6 +876,19 @@ function __iota_scope_exists(_scope) //Does do deactivation check
         if (weak_ref_alive(_scope)) return 2;
         return -2;
     }
+}
+
+function __iota_trace()
+{
+    var _string = "iota: ";
+    var _i = 0;
+    repeat(argument_count)
+    {
+        _string += string(argument[_i]);
+        ++_i;
+    }
+    
+    show_debug_message(_string);
 }
 
 #endregion
