@@ -737,21 +737,6 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
     
     static Cancel = function()
     {
-        if (__clock == undefined) return undefined;
-        
-        var _array = __clock.__alarm_array;
-        var _i = 0;
-        repeat(array_length(_array))
-        {
-            if (_array[_i] == self)
-            {
-                array_delete(_array, _i, 1);
-                break;
-            }
-                    
-            ++_i;
-        }
-        
         __clock = undefined;
     }
     
@@ -761,6 +746,8 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
     
     static __Tick = function()
     {
+        if (__clock == undefined) return true;
+        
         __remaining--;
         if (__remaining <= 0)
         {
