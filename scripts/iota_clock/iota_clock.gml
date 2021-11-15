@@ -428,12 +428,16 @@ function iota_clock() constructor
         var _is_struct   = false;
         var _id          = undefined;
         
-        if (is_real(_scope))
+        if (is_numeric(_scope))
         {
             if (_scope < 100000)
             {
-                show_error("iota method scope must be an instance or a struct, object indexes are not permitted", true);
+                show_error("iota:\nMethod scope must be an instance or a struct, object indexes are not permitted", true);
             }
+        }
+        else if (!is_struct(_scope))
+        {
+            show_error("iota:\nMethod scope must be an instance or a struct, found scope's data type was " + typeof(_scope), true);
         }
     
         var _child_id = variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME);
