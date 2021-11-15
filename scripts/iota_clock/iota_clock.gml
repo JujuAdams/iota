@@ -204,6 +204,13 @@ function iota_clock() constructor
         var _scope = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
         
         var _child_data = __get_child_data(_scope);
+        
+        //Catch weird errors due to scoping
+        if (!is_array(_child_data))
+        {
+            show_error("iota:\nScope could not be determined (data type=" + typeof(_scope) + ")\n ", true);
+        }
+        
         var _array = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
         
         if (_array == undefined)
@@ -249,6 +256,13 @@ function iota_clock() constructor
     static __variable_interpolate_common = function(_in_name, _out_name, _scope, _is_angle)
     {
         var _child_data = __get_child_data(_scope);
+        
+        //Catch weird errors due to scoping
+        if (!is_array(_child_data))
+        {
+            show_error("iota:\nScope could not be determined (data type=" + typeof(_scope) + ")\n ", true);
+        }
+        
         var _array = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
         
         if (_array == undefined)
@@ -413,6 +427,12 @@ function iota_clock() constructor
         }
         
         var _child_data = __get_child_data(_scope);
+        
+        //Catch weird errors due to scoping
+        if (!is_array(_child_data))
+        {
+            show_error("iota:\nScope could not be determined (data type=" + typeof(_scope) + ")\n ", true);
+        }
         
         //If we haven't seen this method type before for this child, add the child to the relevant array
         if (_child_data[_method_type] == undefined) array_push(_array, _child_data);
