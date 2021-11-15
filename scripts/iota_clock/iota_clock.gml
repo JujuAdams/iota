@@ -452,16 +452,28 @@ function iota_clock() constructor
         {
             if (_scope < 100000)
             {
-                show_error("iota:\nMethod scope must be an instance or a struct, object indexes are not permitted", true);
+                show_error("iota:\nMethod scope must be an instance or a struct, object indexes are not permitted\n ", true);
             }
         }
         else if (!is_struct(_scope))
         {
-            show_error("iota:\nMethod scope must be an instance or a struct, found scope's data type was " + typeof(_scope), true);
+            show_error("iota:\nMethod scope must be an instance or a struct, found scope's data type was " + typeof(_scope) + "\n ", true);
         }
     
         var _child_id = variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME);
+        
+        //Fetch the data packet from the clock's data struct
+        var _child_data = (_child_id == undefined)? undefined : __children_struct[$ _child_id];
+        
+        //If this scope didn't have an ID, assign it one
         if (_child_id == undefined)
+        {
+            global.__iota_unique_id++;
+            _child_id = global.__iota_unique_id;
+        }
+        
+        //If this scope didn't have any data for this clock, create some
+        if (_child_data == undefined)
         {
             //If the scope is a real number then presume it's an instance ID
             if (is_numeric(_scope))
@@ -507,30 +519,19 @@ function iota_clock() constructor
                     _is_struct = true;
                 }
             }
-        
-            if (!_is_instance && !_is_struct)
-            {
-                return undefined;
-            }
-        
+            
             //Give this scope a unique iota ID
             //This'll save us some pain later if we need to add a different sort of method
-            global.__iota_unique_id++;
-            variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, global.__iota_unique_id);
-        
+            variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, _child_id);
+            
             //Create a new data packet and set it up
             var _child_data = array_create(__IOTA_CHILD.__SIZE, undefined);
-            _child_data[@ __IOTA_CHILD.IOTA_ID] = global.__iota_unique_id;
+            _child_data[@ __IOTA_CHILD.IOTA_ID] = _child_id;
             _child_data[@ __IOTA_CHILD.SCOPE  ] = (_is_instance? _id : weak_ref_create(_scope));
             _child_data[@ __IOTA_CHILD.DEAD   ] = false;
         
             //Then slot this data packet into the clock's data struct + array
-            __children_struct[$ global.__iota_unique_id] = _child_data;
-        }
-        else
-        {
-            //Fetch the data packet from the clock's data struct
-            _child_data = __children_struct[$ _child_id];
+            __children_struct[$ _child_id] = _child_data;
         }
         
         return _child_data;
