@@ -559,7 +559,7 @@ function iota_clock() constructor
                 case 1: //Alive instance
                 case 2: //Alive struct
                     //If our scope isn't a real then it's a struct, so jump into the struct itself
-                    if (!is_real(_scope)) _scope = _scope.ref;
+                    if (!is_numeric(_scope)) _scope = _scope.ref;
                     
                     var _variables = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
                     var _j = 0;
@@ -607,7 +607,7 @@ function iota_clock() constructor
                 case 1: //Alive instance
                 case 2: //Alive struct
                     //If our scope isn't a real then it's a struct, so jump into the struct itself
-                    if (!is_real(_scope)) _scope = _scope.ref;
+                    if (!is_numeric(_scope)) _scope = _scope.ref;
                     
                     var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
                     var _j = 0;
@@ -656,7 +656,7 @@ function iota_clock() constructor
                 case 1: //Alive instance
                 case 2: //Alive struct
                     //If our scope isn't a real then it's a struct, so jump into the struct itself
-                    if (!is_real(_scope)) _scope = _scope.ref;
+                    if (!is_numeric(_scope)) _scope = _scope.ref;
                     
                     var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
                     var _j = 0;
