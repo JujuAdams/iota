@@ -459,7 +459,7 @@ function iota_clock() constructor
         {
             show_error("iota:\nMethod scope must be an instance or a struct, found scope's data type was " + typeof(_scope) + "\n ", true);
         }
-    
+        
         var _child_id = variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME);
         
         //Fetch the data packet from the clock's data struct
