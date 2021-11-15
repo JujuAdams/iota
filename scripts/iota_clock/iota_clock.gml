@@ -821,7 +821,7 @@ function __iota_get_scope(_scope)
     var _id          = undefined;
     
     //If the scope is a real number then presume it's an instance ID
-    if (is_real(_scope))
+    if (is_numeric(_scope))
     {
         //We found a valid instance ID so let's set some variables based on that
         //Changing scope here works around some bugs in GameMaker that I don't think exist any more?
@@ -839,7 +839,7 @@ function __iota_get_scope(_scope)
         //Despite being able to read struct variable, it doesn't report as a struct... which is weird
         //Anyway, this check works around that!
         var _id = variable_instance_get(_scope, "id");
-        if (is_real(_id) && !is_struct(_scope))
+        if (is_numeric(_id) && !is_struct(_scope))
         {
             if (instance_exists(_id))
             {
@@ -881,7 +881,7 @@ function __iota_get_scope(_scope)
 ///     2 = Alive struct
 function __iota_scope_exists(_scope) //Does do deactivation check
 {
-    if (is_real(_scope))
+    if (is_numeric(_scope))
     {
         //If this scope is a real number then it's an instance ID
         if (instance_exists(_scope)) return 1;
