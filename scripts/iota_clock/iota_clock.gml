@@ -386,6 +386,23 @@ function iota_clock() constructor
     
     static __add_method_generic = function(_method, _method_type)
     {
+        if (is_numeric(_method))
+        {
+            //Might be a script index
+            if (script_exists(_method))
+            {
+                _method = method(other, _method);
+            }
+            else
+            {
+                show_error("iota:\nCould not find script index " + string(_method) + "\n ", true);
+            }
+        }
+        else if (!is_method(_method))
+        {
+            show_error("iota:\nMethod was an incorrect data type (" + typeof(_method) + ")\n ", true);
+        }
+        
         var _scope = method_get_self(_method);
         
         switch(_method_type)
