@@ -444,7 +444,7 @@ function iota_clock() constructor
         if (_child_id == undefined)
         {
             //If the scope is a real number then presume it's an instance ID
-            if (is_real(_scope))
+            if (is_numeric(_scope))
             {
                 //We found a valid instance ID so let's set some variables based on that
                 //Changing scope here works around some bugs in GameMaker that I don't think exist any more?
@@ -462,7 +462,7 @@ function iota_clock() constructor
                 //Despite being able to read struct variable, it doesn't report as a struct... which is weird
                 //Anyway, this check works around that!
                 var _id = variable_instance_get(_scope, "id");
-                if (is_real(_id) && !is_struct(_scope))
+                if (is_numeric(_id) && !is_struct(_scope))
                 {
                     if (instance_exists(_id))
                     {
