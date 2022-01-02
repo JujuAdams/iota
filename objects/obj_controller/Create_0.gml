@@ -1,3 +1,3 @@
-clock = new iota_clock();
+clock = new IotaClock();
 
 room_goto_next();

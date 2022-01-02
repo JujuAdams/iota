@@ -1,1 +1,1 @@
-obj_controller.clock.add_cycle_method("someOtherFunction");
+obj_controller.clock.AddCycleMethod("someOtherFunction");

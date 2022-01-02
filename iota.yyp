@@ -7,11 +7,11 @@
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},"order":2,},
     {"id":{"name":"obj_player_interpolated","path":"objects/obj_player_interpolated/obj_player_interpolated.yy",},"order":3,},
     {"id":{"name":"rm_init","path":"rooms/rm_init/rm_init.yy",},"order":4,},
-    {"id":{"name":"__iota_config","path":"scripts/__iota_config/__iota_config.yy",},"order":0,},
+    {"id":{"name":"__IotaConfig","path":"scripts/__IotaConfig/__IotaConfig.yy",},"order":0,},
     {"id":{"name":"obj_test_global_scope","path":"objects/obj_test_global_scope/obj_test_global_scope.yy",},"order":4,},
     {"id":{"name":"test_class_player","path":"scripts/test_class_player/test_class_player.yy",},"order":1,},
     {"id":{"name":"obj_controller","path":"objects/obj_controller/obj_controller.yy",},"order":1,},
-    {"id":{"name":"iota_clock","path":"scripts/iota_clock/iota_clock.yy",},"order":1,},
+    {"id":{"name":"IotaClock","path":"scripts/IotaClock/IotaClock.yy",},"order":1,},
     {"id":{"name":"rm_main","path":"rooms/rm_main/rm_main.yy",},"order":5,},
   ],
   "Options": [
@@ -53,7 +53,7 @@
   ],
   "IncludedFiles": [],
   "MetaData": {
-    "IDEVersion": "2.3.6.595",
+    "IDEVersion": "2.3.7.606",
   },
   "resourceVersion": "1.4",
   "name": "Iota",
