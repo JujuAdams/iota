@@ -91,11 +91,12 @@ function IotaClock() constructor
 {
     var _identifier = (argument_count > 0)? argument[0] : undefined;
     
-    __identifier      = _identifier
-    __updateFrequency = game_get_speed(gamespeed_fps);
-    __paused          = false;
-    __dilation        = 1.0;
-    __accumulator     = 0;
+    __identifier        = _identifier
+    __updateFrequency   = game_get_speed(gamespeed_fps);
+    __paused            = false;
+    __dilation          = 1.0;
+    __seconds_per_cycle = 1 / (__dilation*__updateFrequency);
+    __accumulator       = 0;
     
     __childrenStruct      = {};
     __beginMethodArray    = [];
@@ -122,12 +123,13 @@ function IotaClock() constructor
         if (!__paused && (__dilation > 0))
         {
             __accumulator += _delta;
-            IOTA_CYCLES_FOR_CLOCK = floor(__dilation * __updateFrequency * __accumulator);
-            __accumulator -= IOTA_CYCLES_FOR_CLOCK / (__dilation*__updateFrequency);
+            IOTA_CYCLES_FOR_CLOCK = floor(__accumulator/__seconds_per_cycle);
+            __accumulator = frac(__accumulator);
         }
         
         if (IOTA_CYCLES_FOR_CLOCK > 0)
         {
+            IOTA_SECONDS_PER_CYCLE = __seconds_per_cycle;
             IOTA_CYCLE_INDEX = -1;
             __execute_methods(__IOTA_CHILD.BEGIN_METHOD);
             
@@ -169,9 +171,10 @@ function IotaClock() constructor
         if (!__paused && (__dilation > 0)) __VariablesInterpolateUpdate();
     
         //Make sure to reset these macros so they can't be accessed outside of iota methods
-        IOTA_CURRENT_CLOCK    = undefined;
-        IOTA_CYCLES_FOR_CLOCK = undefined;
-        IOTA_CYCLE_INDEX      = undefined;
+        IOTA_CURRENT_CLOCK     = undefined;
+        IOTA_CYCLES_FOR_CLOCK  = undefined;
+        IOTA_CYCLE_INDEX       = undefined;
+        IOTA_SECONDS_PER_CYCLE = undefined;
     }
     
     #endregion
@@ -319,6 +322,7 @@ function IotaClock() constructor
     static SetUpdateFrequency = function(_frequency)
     {
         __updateFrequency = _frequency;
+        __seconds_per_cycle = 1 / (__dilation*__updateFrequency);
     }
     
     static GetUpdateFrequency = function()
@@ -329,6 +333,7 @@ function IotaClock() constructor
     static SetTimeDilation = function(_multiplier)
     {
         __dilation = max(0, _multiplier);
+        __seconds_per_cycle = 1 / (__dilation*__updateFrequency);
     }
     
     static GetTimeDilation = function()
@@ -709,13 +714,15 @@ __IotaTrace("Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION +
 
 global.__iota_unique_id = 0;
 
-#macro IOTA_CURRENT_CLOCK     global.__iota_current_clock
-#macro IOTA_CYCLES_FOR_CLOCK  global.__iota_total_cycles
-#macro IOTA_CYCLE_INDEX       global.__iota_cycle_index
+#macro IOTA_CURRENT_CLOCK       global.__iota_current_clock
+#macro IOTA_CYCLES_FOR_CLOCK    global.__iota_total_cycles
+#macro IOTA_CYCLE_INDEX         global.__iota_cycle_index
+#macro IOTA_SECONDS_PER_CYCLE   global.__iota_seconds_per_cycle  
 
-IOTA_CURRENT_CLOCK    = undefined;
-IOTA_CYCLES_FOR_CLOCK = undefined;
-IOTA_CYCLE_INDEX      = undefined;
+IOTA_CURRENT_CLOCK     = undefined;
+IOTA_CYCLES_FOR_CLOCK  = undefined;
+IOTA_CYCLE_INDEX       = undefined;
+IOTA_SECONDS_PER_CYCLE = undefined;
 
 enum __IOTA_CHILD
 {
