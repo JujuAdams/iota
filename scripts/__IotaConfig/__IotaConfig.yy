@@ -6,7 +6,7 @@
     "path": "folders/iota.yy",
   },
   "resourceVersion": "1.0",
-  "name": "iota_clock",
+  "name": "__IotaConfig",
   "tags": [],
   "resourceType": "GMScript",
 }

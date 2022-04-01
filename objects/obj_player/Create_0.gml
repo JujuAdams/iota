@@ -7,7 +7,7 @@ jump_pressed_state = false;
 
 
 
-obj_controller.clock.add_begin_method(function()
+obj_controller.clock.AddBeginMethod(function()
 {
     //Do a basic jump if 1) we're on the groud and 2) the player has pressed space
     if ((y >= ystart) && jump_pressed_state) velocity_y -= 20;
@@ -17,7 +17,7 @@ obj_controller.clock.add_begin_method(function()
 
 
 
-obj_controller.clock.add_cycle_method(function()
+obj_controller.clock.AddCycleMethod(function()
 {
     //Move left/right
     //This is continuous input so we don't want to clear these states
@@ -44,7 +44,7 @@ obj_controller.clock.add_cycle_method(function()
 
 
 
-obj_controller.clock.add_end_method(function()
+obj_controller.clock.AddEndMethod(function()
 {
     //idk what to put here lol
 });

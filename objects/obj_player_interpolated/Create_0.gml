@@ -8,14 +8,14 @@ jump_pressed_state = false;
 
 
 //Reset jump_pressed_state at the end of the first cycle
-obj_controller.clock.variable_momentary("jump_pressed_state", false);
+obj_controller.clock.VariableMomentary("jump_pressed_state", false);
 //Set iota_x/iota_y to the interpolated value of x/y
-obj_controller.clock.variable_interpolate("x", "iota_x");
-obj_controller.clock.variable_interpolate("y", "iota_y");
+obj_controller.clock.VariableInterpolate("x", "iota_x");
+obj_controller.clock.VariableInterpolate("y", "iota_y");
 
 
 
-obj_controller.clock.add_cycle_method(function()
+obj_controller.clock.AddCycleMethod(function()
 {
     //Move left/right
     //This is continuous input so we don't want to clear these states
