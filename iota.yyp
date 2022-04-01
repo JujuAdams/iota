@@ -2,6 +2,7 @@
   "resources": [
     {"id":{"name":"obj_test_angle","path":"objects/obj_test_angle/obj_test_angle.yy",},"order":2,},
     {"id":{"name":"scr_test_global_scope","path":"scripts/scr_test_global_scope/scr_test_global_scope.yy",},"order":5,},
+    {"id":{"name":"IotaSkipInterpolation","path":"scripts/IotaSkipInterpolation/IotaSkipInterpolation.yy",},"order":2,},
     {"id":{"name":"obj_test_struct","path":"objects/obj_test_struct/obj_test_struct.yy",},"order":0,},
     {"id":{"name":"obj_test_alarms","path":"objects/obj_test_alarms/obj_test_alarms.yy",},"order":3,},
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},"order":2,},
@@ -30,9 +31,8 @@
     {"name":"Xbox One","path":"options/xboxone/options_xboxone.yy",},
     {"name":"operagx","path":"options/operagx/options_operagx.yy",},
   ],
-  "isDnDProject": false,
+  "defaultScriptType": 1,
   "isEcma": false,
-  "tutorialPath": "",
   "configs": {
     "name": "Default",
     "children": [],
@@ -49,13 +49,13 @@
     {"targets":-1,"resourceVersion":"1.3","name":"audiogroup_default","resourceType":"GMAudioGroup",},
   ],
   "TextureGroups": [
-    {"isScaled":true,"autocrop":true,"border":2,"mipsToGenerate":0,"groupParent":null,"targets":-1,"resourceVersion":"1.3","name":"Default","resourceType":"GMTextureGroup",},
+    {"isScaled":true,"compressFormat":"bz2","autocrop":true,"border":2,"mipsToGenerate":0,"groupParent":null,"targets":-1,"resourceVersion":"1.3","name":"Default","resourceType":"GMTextureGroup",},
   ],
   "IncludedFiles": [],
   "MetaData": {
-    "IDEVersion": "2.3.7.606",
+    "IDEVersion": "2022.3.0.624",
   },
-  "resourceVersion": "1.4",
+  "resourceVersion": "1.5",
   "name": "Iota",
   "tags": [],
   "resourceType": "GMProject",

@@ -111,6 +111,7 @@ function IotaClock() constructor
     static Tick = function()
     {
         IOTA_CURRENT_CLOCK = __identifier;
+        global.__iota_current_clock = self;
         
         //Get the clamped delta time value for this GameMaker frame
         //We clamp the bottom end to ensure that games still chug along even if the device is really grinding
@@ -175,6 +176,8 @@ function IotaClock() constructor
         IOTA_CYCLES_FOR_CLOCK  = undefined;
         IOTA_CYCLE_INDEX       = undefined;
         IOTA_SECONDS_PER_CYCLE = undefined;
+        
+        global.__iota_current_clock = undefined;
     }
     
     #endregion
@@ -289,6 +292,23 @@ function IotaClock() constructor
         
         array_push(_array, _in_name, _out_name, variable_instance_get(_scope, _in_name), _is_angle);
         variable_instance_set(_scope, _out_name, variable_instance_get(_scope, _in_name));
+    }
+    
+    static __VariableSkipInterpolation = function(_out_name, _scope)
+    {
+        var _child_data = __GetChildData(_scope);
+        
+        var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+        var _j = 0;
+        repeat(array_length(_variables) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
+        {
+            if (_variables[@ _j + __IOTA_INTERPOLATED_VARIABLE.OUT_NAME] == _out_name)
+            {
+                _variables[@ _j + __IOTA_INTERPOLATED_VARIABLE.PREV_VALUE] = variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.IN_NAME]);
+            }
+            
+            _j += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
+        }
     }
     
     #endregion
@@ -713,8 +733,9 @@ function IotaClock() constructor
 __IotaTrace("Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
 
 global.__iota_unique_id = 0;
+global.__iota_current_clock = undefined;
 
-#macro IOTA_CURRENT_CLOCK       global.__iota_current_clock
+#macro IOTA_CURRENT_CLOCK       global.__iota_current_identifier
 #macro IOTA_CYCLES_FOR_CLOCK    global.__iota_total_cycles
 #macro IOTA_CYCLE_INDEX         global.__iota_cycle_index
 #macro IOTA_SECONDS_PER_CYCLE   global.__iota_seconds_per_cycle  
