@@ -124,7 +124,7 @@ function IotaClock() constructor
         {
             __accumulator += _delta;
             IOTA_CYCLES_FOR_CLOCK = floor(__accumulator/__seconds_per_cycle);
-            __accumulator = frac(__accumulator);
+            __accumulator -= IOTA_CYCLES_FOR_CLOCK*__seconds_per_cycle;
         }
         
         if (IOTA_CYCLES_FOR_CLOCK > 0)
