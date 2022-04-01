@@ -1,14 +1,10 @@
-### `__iota_config()`
+# Configuration & Macros
 
-**Returns:** N/A (`undefined`)
+&nbsp;
 
-|Name|Datatype|Purpose|
-|----|--------|-------|
-|None|        |       |
+`__iota_config()` holds a few macros that customise the behaviour of iota. This script never needs to be directly called in code, but the script and the macros it contains must be present in a project for iota to work.
 
-This script holds a few macros that customise the behaviour of iota. `__iota_config()` never needs to be directly called in code, but the script and the macros it contains must be present in a project for iota to work.
-
-**You should edit this script to customise iota for your own purposes.**
+?> You should edit `__iota_config()` to customise iota for your own purposes.**
 
 &nbsp;
 

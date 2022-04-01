@@ -51,8 +51,6 @@ There is a big caveat with iota, however, and that's that many native GameMaker 
 
 &nbsp;
 
-&nbsp;
-
 ## Interpolation
 
 Now, let's say we have a high refresh rate screen. If your framerate is higher than the update frequency (which we set earlier to 60hz) then you might notice that the player doesn't move more smoothly despite the higher framerate. This is because the player's position is still only being updated 60 times a second via the clock.
