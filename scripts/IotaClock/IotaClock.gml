@@ -7,7 +7,7 @@
 /// iota clocks have the following public methods:
 /// 
 ///   .Tick()
-///     Updates the clock and executes methods
+///     Updates the clock and executes methods. This methods returns how many clock cycles were executed
 ///     A clock will execute enough cycles to match its realtime update frequency
 ///     This means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick
 ///   
@@ -170,7 +170,9 @@ function IotaClock() constructor
         
         //Update our output interpolated variables
         if (!__paused && (__dilation > 0)) __VariablesInterpolateUpdate();
-    
+        
+        var _cycles = IOTA_CYCLES_FOR_CLOCK;
+        
         //Make sure to reset these macros so they can't be accessed outside of iota methods
         IOTA_CURRENT_CLOCK     = undefined;
         IOTA_CYCLES_FOR_CLOCK  = undefined;
@@ -178,6 +180,8 @@ function IotaClock() constructor
         IOTA_SECONDS_PER_CYCLE = undefined;
         
         global.__iotaCurrentClock = undefined;
+        
+        return _cycles;
     }
     
     #endregion
