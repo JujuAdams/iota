@@ -443,6 +443,7 @@ function IotaClock() constructor
         }
         
         var _scope = method_get_self(_method);
+        if (_scope == undefined) _scope = other;
         
         switch(_method_type)
         {
