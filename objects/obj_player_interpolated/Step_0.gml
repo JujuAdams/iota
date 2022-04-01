@@ -1,4 +1,4 @@
-if (!obj_controller.clock.GetPause())
+if (!obj_controller.clock.get_pause())
 {
     left_state = keyboard_check(vk_left);
     right_state = keyboard_check(vk_right);

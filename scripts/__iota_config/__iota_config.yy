@@ -6,7 +6,7 @@
     "path": "folders/iota.yy",
   },
   "resourceVersion": "1.0",
-  "name": "IotaSkipInterpolation",
+  "name": "__iota_config",
   "tags": [],
   "resourceType": "GMScript",
 }

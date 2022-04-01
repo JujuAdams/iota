@@ -1,15 +1,15 @@
-clock.Tick();
+clock.tick();
 
 //Cycle through iota target framerates
 if (keyboard_check_pressed(ord("I")))
 {
-    switch(clock.GetUpdateFrequency())
+    switch(clock.get_update_frequency())
     {
-        case 30:  clock.SetUpdateFrequency( 60); break;
-        case 60:  clock.SetUpdateFrequency( 75); break;
-        case 75:  clock.SetUpdateFrequency(120); break;
-        case 120: clock.SetUpdateFrequency(144); break;
-        case 144: clock.SetUpdateFrequency( 30); break;
+        case 30:  clock.set_update_frequency( 60); break;
+        case 60:  clock.set_update_frequency( 75); break;
+        case 75:  clock.set_update_frequency(120); break;
+        case 120: clock.set_update_frequency(144); break;
+        case 144: clock.set_update_frequency( 30); break;
     }
 }
 
@@ -30,20 +30,20 @@ if (keyboard_check_pressed(ord("G")))
 //Cycle through time dilation multipliersa
 if (keyboard_check_pressed(ord("D")))
 {
-    switch(clock.GetTimeDilation())
+    switch(clock.get_time_dilation())
     {
-        case 0.27: clock.SetTimeDilation(0.50); break;
-        case 0.50: clock.SetTimeDilation(1.00); break;
-        case 1.00: clock.SetTimeDilation(2.00); break;
-        case 2.00: clock.SetTimeDilation(3.33); break;
-        case 3.33: clock.SetTimeDilation(0.27); break;
+        case 0.27: clock.set_time_dilation(0.50); break;
+        case 0.50: clock.set_time_dilation(1.00); break;
+        case 1.00: clock.set_time_dilation(2.00); break;
+        case 2.00: clock.set_time_dilation(3.33); break;
+        case 3.33: clock.set_time_dilation(0.27); break;
     }
 }
 
 //Pause toggle
 if (keyboard_check_pressed(ord("P")))
 {
-    clock.SetPause(!clock.GetPause());
+    clock.set_pause(!clock.get_pause());
 }
 
 //Swap between player objects
