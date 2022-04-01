@@ -37,14 +37,14 @@
 ///     A momentary variable will only be reset if the clock needs to execute one or more cycles
 ///     The variable's scope is typically determined by who calls .VariableMomentary(), though for structs you may need to specify the optional [scope] argument
 ///   
-///   .VariableInterpolate(inputVariableName, outputVariableName)
+///   .VariableInterpolate(inputVariableName, outputVariableName, [scope])
 ///     Adds a variable to be smoothly interpolated between iota ticks. The interpolated value is passed to the given output variable name
 ///     Interpolated variables are always updated every time .Tick() is called, even if the clock does not need to execute any cycles
 ///     The variables' scope is typically determined by who calls .VariableInterpolate(), though for structs you may need to specify the optional [scope] argument
 ///       N.B. Interpolated variables will always be (at most) a frame behind the actual value of the input variable
 ///            Most of this time this makes no difference but it's not ideal if you're looking for frame-perfect gameplay
 ///   
-///   .VariableInterpolateAngle(inputVariableName, outputVariableName)
+///   .VariableInterpolateAngle(inputVariableName, outputVariableName, [scope])
 ///     As above, but the value is interpolated as an angle measured in degrees. The output value will be an angle from -360 to +360.
 ///   
 ///   
