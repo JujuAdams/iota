@@ -91,12 +91,12 @@ function IotaClock() constructor
 {
     var _identifier = (argument_count > 0)? argument[0] : undefined;
     
-    __identifier        = _identifier
-    __updateFrequency   = game_get_speed(gamespeed_fps);
-    __paused            = false;
-    __dilation          = 1.0;
-    __seconds_per_cycle = 1 / (__dilation*__updateFrequency);
-    __accumulator       = 0;
+    __identifier      = _identifier
+    __updateFrequency = game_get_speed(gamespeed_fps);
+    __paused          = false;
+    __dilation        = 1.0;
+    __secondsPerCycle = 1 / (__dilation*__updateFrequency);
+    __accumulator     = 0;
     
     __childrenStruct      = {};
     __beginMethodArray    = [];
@@ -111,7 +111,7 @@ function IotaClock() constructor
     static Tick = function()
     {
         IOTA_CURRENT_CLOCK = __identifier;
-        global.__iota_current_clock = self;
+        global.__iotaCurrentClock = self;
         
         //Get the clamped delta time value for this GameMaker frame
         //We clamp the bottom end to ensure that games still chug along even if the device is really grinding
@@ -124,13 +124,13 @@ function IotaClock() constructor
         if (!__paused && (__dilation > 0))
         {
             __accumulator += _delta;
-            IOTA_CYCLES_FOR_CLOCK = floor(__accumulator/__seconds_per_cycle);
-            __accumulator -= IOTA_CYCLES_FOR_CLOCK*__seconds_per_cycle;
+            IOTA_CYCLES_FOR_CLOCK = floor(__accumulator/__secondsPerCycle);
+            __accumulator -= IOTA_CYCLES_FOR_CLOCK*__secondsPerCycle;
         }
         
         if (IOTA_CYCLES_FOR_CLOCK > 0)
         {
-            IOTA_SECONDS_PER_CYCLE = __seconds_per_cycle;
+            IOTA_SECONDS_PER_CYCLE = __secondsPerCycle;
             IOTA_CYCLE_INDEX = -1;
             __execute_methods(__IOTA_CHILD.BEGIN_METHOD);
             
@@ -177,7 +177,7 @@ function IotaClock() constructor
         IOTA_CYCLE_INDEX       = undefined;
         IOTA_SECONDS_PER_CYCLE = undefined;
         
-        global.__iota_current_clock = undefined;
+        global.__iotaCurrentClock = undefined;
     }
     
     #endregion
@@ -342,7 +342,7 @@ function IotaClock() constructor
     static SetUpdateFrequency = function(_frequency)
     {
         __updateFrequency = _frequency;
-        __seconds_per_cycle = 1 / (__dilation*__updateFrequency);
+        __secondsPerCycle = 1 / (__dilation*__updateFrequency);
     }
     
     static GetUpdateFrequency = function()
@@ -353,7 +353,7 @@ function IotaClock() constructor
     static SetTimeDilation = function(_multiplier)
     {
         __dilation = max(0, _multiplier);
-        __seconds_per_cycle = 1 / (__dilation*__updateFrequency);
+        __secondsPerCycle = 1 / (__dilation*__updateFrequency);
     }
     
     static GetTimeDilation = function()
@@ -493,8 +493,8 @@ function IotaClock() constructor
         //If this scope didn't have an ID, assign it one
         if (_child_id == undefined)
         {
-            global.__iota_unique_id++;
-            _child_id = global.__iota_unique_id;
+            global.__iotaUniqueID++;
+            _child_id = global.__iotaUniqueID;
         }
         
         //If this scope didn't have any data for this clock, create some
@@ -732,13 +732,13 @@ function IotaClock() constructor
 
 __IotaTrace("Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
 
-global.__iota_unique_id = 0;
-global.__iota_current_clock = undefined;
+global.__iotaUniqueID     = 0;
+global.__iotaCurrentClock = undefined;
 
-#macro IOTA_CURRENT_CLOCK       global.__iota_current_identifier
-#macro IOTA_CYCLES_FOR_CLOCK    global.__iota_total_cycles
-#macro IOTA_CYCLE_INDEX         global.__iota_cycle_index
-#macro IOTA_SECONDS_PER_CYCLE   global.__iota_seconds_per_cycle  
+#macro IOTA_CURRENT_CLOCK       global.__iotaCurrentIdentifier
+#macro IOTA_CYCLES_FOR_CLOCK    global.__iotaTotalCycles
+#macro IOTA_CYCLE_INDEX         global.__iotaCycleIndex
+#macro IOTA_SECONDS_PER_CYCLE   global.__iotaSecondsPerCycle  
 
 IOTA_CURRENT_CLOCK     = undefined;
 IOTA_CYCLES_FOR_CLOCK  = undefined;
