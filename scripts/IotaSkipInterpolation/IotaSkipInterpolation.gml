@@ -1,4 +1,11 @@
-/// @param outName
+/// Disables interpolation for a given variable in a clock method for a single clock tick
+/// 
+/// This function can only be called in a clock method (either begin, normal, or end method)
+/// 
+/// The scope is determined by who calls IotaSkipInterpolation(). Occasionally you may need to force
+/// the scope, and this can be done by setting the scope argument when calling this function
+/// 
+/// @param outName   Name of the output variable, as set when calling .VariableInterpolate()
 /// @param [scope]
 
 function IotaSkipInterpolation()
