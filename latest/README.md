@@ -23,7 +23,7 @@ iota supports all GameMaker export modules, including consoles, mobile, and Oper
 
 iota is built and maintained by [@jujuadams](https://twitter.com/jujuadams), whose career started by converting [Hyper Light Drifter to 60FPS](https://www.youtube.com/watch?v=LvL9Rt6JVlk). Juju's worked on several [commercial GameMaker games](http://www.jujuadams.com/).
 
-This library will never truly be finished because contributions and suggestions from new users are always welcome. Scribble wouldn't be the same without [your](https://tenor.com/search/whos-awesome-gifs) input! Make a suggestion on the repo's [Issues page](https://github.com/JujuAdams/iota/issues) if you'd like a feature to be added.
+This library will never truly be finished because contributions and suggestions from new users are always welcome. iota wouldn't be the same without [your](https://tenor.com/search/whos-awesome-gifs) input! Make a suggestion on the repo's [Issues page](https://github.com/JujuAdams/iota/issues) if you'd like a feature to be added.
 
 ## License
 
