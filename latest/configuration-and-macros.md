@@ -16,7 +16,7 @@
 
 &nbsp;
 
-Are three additional macros that are available for use inside iota methods. Outside of iota methods they will return `undefined`.
+There are three additional macros that are available for use inside iota methods. Outside of iota methods they will return `undefined`.
 
 |Macro                  |Purpose                                                                                                                                  |
 |-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
