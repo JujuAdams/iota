@@ -455,7 +455,7 @@ function iota_clock() constructor
                 show_error("iota:\nMethod scope must be an instance or a struct, object indexes are not permitted\n ", true);
             }
         }
-        else if (!is_struct(_scope))
+        else if (!is_struct(_scope) && !instance_exists(_scope))
         {
             show_error("iota:\nMethod scope must be an instance or a struct, found scope's data type was " + typeof(_scope) + "\n ", true);
         }
