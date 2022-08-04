@@ -367,7 +367,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope))
+            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
             {
                 case 1: //Alive instance
                     with(_scope) _child_data[_method_type]();
@@ -379,6 +379,7 @@ function iota_clock() constructor
                 
                 case -1: //Dead instance
                 case -2: //Dead struct
+                case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
                     __mark_child_as_dead(_child_data);
                     continue;
@@ -460,17 +461,10 @@ function iota_clock() constructor
             show_error("iota:\nMethod scope must be an instance or a struct, found scope's data type was " + typeof(_scope) + "\n ", true);
         }
         
-        var _child_id = variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME);
+        var _child_id = __iota_ensure_child_id(_scope);
         
         //Fetch the data packet from the clock's data struct
-        var _child_data = (_child_id == undefined)? undefined : __children_struct[$ _child_id];
-        
-        //If this scope didn't have an ID, assign it one
-        if (_child_id == undefined)
-        {
-            global.__iota_unique_id++;
-            _child_id = global.__iota_unique_id;
-        }
+        var _child_data = __children_struct[$ _child_id];
         
         //If this scope didn't have any data for this clock, create some
         if (_child_data == undefined)
@@ -529,7 +523,7 @@ function iota_clock() constructor
             _child_data[@ __IOTA_CHILD.IOTA_ID] = _child_id;
             _child_data[@ __IOTA_CHILD.SCOPE  ] = (_is_instance? _id : weak_ref_create(_scope));
             _child_data[@ __IOTA_CHILD.DEAD   ] = false;
-        
+            
             //Then slot this data packet into the clock's data struct + array
             __children_struct[$ _child_id] = _child_data;
         }
@@ -554,7 +548,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope))
+            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
@@ -572,6 +566,7 @@ function iota_clock() constructor
                 
                 case -1: //Dead instance
                 case -2: //Dead struct
+                case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
                     __mark_child_as_dead(_child_data);
                     continue;
@@ -602,7 +597,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope))
+            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
@@ -620,6 +615,7 @@ function iota_clock() constructor
                 
                 case -1: //Dead instance
                 case -2: //Dead struct
+                case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
                     __mark_child_as_dead(_child_data);
                     continue;
@@ -651,7 +647,7 @@ function iota_clock() constructor
             }
             
             var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope))
+            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
@@ -680,6 +676,7 @@ function iota_clock() constructor
                 
                 case -1: //Dead instance
                 case -2: //Dead struct
+                case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
                     __mark_child_as_dead(_child_data);
                     continue;
@@ -758,6 +755,7 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
     __remaining = undefined;
     __func      = undefined;
     __scope     = undefined;
+    __iotaID    = undefined;
     
     var _scope = __iota_get_scope(method_get_self(_method));
     if (_scope != undefined)
@@ -767,6 +765,7 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
         __remaining = _cycles;
         __func      = method(undefined, _method);
         __scope     = _scope;
+        __iotaID    = __iota_ensure_child_id(_scope);
         
         array_push(__clock.__alarm_array, self);
     }
@@ -793,7 +792,7 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
         __remaining--;
         if (__remaining <= 0)
         {
-            if (__iota_scope_exists(__scope))
+            if (__iota_scope_exists(__scope, __iotaID))
             {
                 var _func = __func;
                 with(__scope) _func();
@@ -871,20 +870,45 @@ function __iota_get_scope(_scope)
     }
 }
 
+function __iota_ensure_child_id(_scope)
+{
+    var _child_id = variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME);
+    if (_child_id == undefined)
+    {
+        global.__iota_unique_id++;
+        
+        _child_id = global.__iota_unique_id;
+        variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, _child_id);
+    }
+    
+    return _child_id;
+}
+
 
 
 /// Returns:
+///    -3 = Instance has different child ID
 ///    -2 = Dead struct
 ///    -1 = Dead instance
 ///     0 = Deactivated instance
 ///     1 = Alive instance
 ///     2 = Alive struct
-function __iota_scope_exists(_scope) //Does do deactivation check
+function __iota_scope_exists(_scope, _expected_child_id) //Does do deactivation check
 {
     if (is_numeric(_scope))
     {
         //If this scope is a real number then it's an instance ID
-        if (instance_exists(_scope)) return 1;
+        if (instance_exists(_scope))
+        {
+            if ((_expected_child_id != undefined) && (variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME) != _expected_child_id))
+            {
+                return -3;
+            }
+            else
+            {
+                return 1;
+            }
+        }
             
         if (IOTA_CHECK_FOR_DEACTIVATION)
         {
