@@ -129,7 +129,7 @@ As above, but the value is interpolated as an angle measured in degrees. The out
 <details><summary><code>.add_alarm(milliseconds, method)</code></summary>
 &nbsp;
 
-**Returns:** Struct, an instance of `__iot_class_alarm`
+**Returns:** Struct, an instance of `__iota_class_alarm`
 
 |Name        |Datatype|Purpose                               |
 |------------|--------|--------------------------------------|
@@ -148,7 +148,7 @@ The returned struct has a public method called `.Cancel()` which, when executed,
 <details><summary><code>.add_alarm_cycles(cycles, method)</code></summary>
 &nbsp;
 
-**Returns:** Struct, an instance of `__iot_class_alarm`
+**Returns:** Struct, an instance of `__iota_class_alarm`
 
 |Name  |Datatype|Purpose                                                   |
 |------|--------|----------------------------------------------------------|
