@@ -8,15 +8,15 @@ Creating a clock is done using the [`new` keyword](https://www.yoyogames.com/en/
 
 ```GML
 ///Create Event of the controller object
-global.clock = new iota_clock();
-global.clock.set_update_frequency(60);
+global.clock = new IotaClock();
+global.clock.SetUpdateFrequency(60);
 ```
 
-These two lines of code create a new clock and stores a reference to it in the variable `global.clock`. We also set the update frequency of the clock to 60hz which matches the default GameMaker framerate of 60FPS. In the Step event of a controller instance we'll call the `.tick()` method for the clock.
+These two lines of code create a new clock and stores a reference to it in the variable `global.clock`. We also set the update frequency of the clock to 60hz which matches the default GameMaker framerate of 60FPS. In the Step event of a controller instance we'll call the `.Tick()` method for the clock.
 
 ```GML
 ///Step Event of the controller object
-global.clock.tick();
+global.clock.Tick();
 ```
 
 This ensures that the clock will update constantly and, if it needs to, execute code.
@@ -27,7 +27,7 @@ Create a new object for the player and, in its Create event, we attach a method 
 ///Create Event of the player
 
 //Attach a basic movement method to the clock
-global.clock.add_cycle_method(function()
+global.clock.AddCycleMethod(function()
 {
     if (keyboard_check(vk_up)) y -= 4;
     if (keyboard_check(vk_down)) y += 4;
@@ -63,8 +63,8 @@ We can solve this juddering problem with some "state interpolation". iota makes 
 ///Create Event of the player
 
 //Set up position interpolation
-global.clock.variable_interpolate("x", "iota_x");
-global.clock.variable_interpolate("y", "iota_y");
+global.clock.VariableInterpolate("x", "iotaX");
+global.clock.VariableInterpolate("y", "iotaY");
 
 //Attach a basic movement method to the clock (this is unchanged from before)
 global.clock.add_cycle_method(function()
@@ -78,7 +78,7 @@ global.clock.add_cycle_method(function()
 
 ```GML
 ///Draw Event of the player
-draw_circle(iota_x, iota_y, 20, false); //Use interpolated values for our position
+draw_circle(iotaX, iotaY, 20, false); //Use interpolated values for our position
 ```
 
 iota will now interpolate player motion between updates so that what we draw to the screen is smoother. Any continuous numeric value can be interpolated, including animation frames.
