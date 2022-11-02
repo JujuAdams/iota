@@ -1,6 +1,6 @@
 # `IotaClock([identifier])` ***constructor***
 
-**Constructor returns:** `IotaClock` struct
+*Constructor returns:* `IotaClock` struct
 
 |Name          |Datatype|Purpose                                                                                                                                                        |
 |--------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
