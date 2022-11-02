@@ -85,12 +85,8 @@
 ///   .GetRemainder()
 ///     Returns the remainder on the accumulator
 
-
-
-function IotaClock() constructor
+function IotaClock(_identifier = undefined) constructor
 {
-    var _identifier = (argument_count > 0)? argument[0] : undefined;
-    
     __identifier      = _identifier
     __updateFrequency = game_get_speed(gamespeed_fps);
     __paused          = false;
@@ -207,12 +203,8 @@ function IotaClock() constructor
     
     #region Variables
     
-    static VariableMomentary = function()
+    static VariableMomentary = function(_name, _reset, _scope = other)
     {
-        var _name  = argument[0];
-        var _reset = argument[1];
-        var _scope = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
-        
         var _childData = __GetChildData(_scope);
         
         //Catch weird errors due to scoping
@@ -222,7 +214,6 @@ function IotaClock() constructor
         }
         
         var _array = _childData[__IOTA_CHILD.__VARIABLES_MOMENTARY];
-        
         if (_array == undefined)
         {
             _array = [];
@@ -245,21 +236,13 @@ function IotaClock() constructor
         array_push(_array, _name, _reset);
     }
     
-    static VariableInterpolate = function()
+    static VariableInterpolate = function(_inName, _outName, _scope = other)
     {
-        var _inName  = argument[0];
-        var _outName = argument[1];
-        var _scope   = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
-        
         return __VariableInterpolateCommon(_inName, _outName, _scope, false);
     }
     
-    static VariableInterpolateAngle = function()
+    static VariableInterpolateAngle = function(_inName, _outName, _scope = other)
     {
-        var _inName  = argument[0];
-        var _outName = argument[1];
-        var _scope   = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
-        
         return __VariableInterpolateCommon(_inName, _outName, _scope, true);
     }
     
@@ -476,7 +459,7 @@ function IotaClock() constructor
     {
         var _isInstance = false;
         var _isStruct   = false;
-        var _id          = undefined;
+        var _id         = undefined;
         
         if (is_numeric(_scope))
         {
@@ -851,7 +834,7 @@ function __IotaGetScope(_scope)
 {
     var _isInstance = false;
     var _isStruct   = false;
-    var _id          = undefined;
+    var _id         = undefined;
     
     //If the scope is a real number then presume it's an instance ID
     if (is_numeric(_scope))
