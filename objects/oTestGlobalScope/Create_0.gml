@@ -1,0 +1,1 @@
+oController.clock.AddCycleMethod(someOtherFunction);
