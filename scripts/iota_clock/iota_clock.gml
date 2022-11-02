@@ -1,30 +1,30 @@
 /// Constructor that instantiates an iota clock
 /// 
-/// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .tick() method is called. Defaults to <undefined>
+/// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .Tick() method is called. Defaults to <undefined>
 /// 
 /// 
 /// 
 /// iota clocks have the following public methods:
 /// 
-///   .tick()
-///     Updates the clock and executes methods
+///   .Tick()
+///     Updates the clock and executes methods. This methods returns how many clock cycles were executed
 ///     A clock will execute enough cycles to match its realtime update frequency
 ///     This means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick
 ///   
 ///   
 ///   
-///   .add_cycle_method(method)
+///   .AddCycleMethod(method)
 ///     Adds a method to be executed for each cycle
 ///     The scope of the method passed into this function will persist
 ///     Only one cycle method can be defined per instance/struct
 ///   
-///   .add_begin_method(method)
+///   .AddBeginMethod(method)
 ///     Adds a method to be executed at the start of a tick, before any cycle methods
 ///     The scope of the method passed into this function will persist
 ///     Only one begin method can be defined per instance/struct
 ///     Begin methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///   
-///   .add_end_method(method)
+///   .AddEndMethod(method)
 ///     Adds a method to be executed at the end of a tick, after all cycle methods
 ///     The scope of the method passed into this function will persist
 ///     Only one end method can be defined per instance/struct
@@ -32,84 +32,82 @@
 ///   
 ///   
 ///   
-///   .variable_momentary(variableName, resetValue, [scope])
+///   .VariableMomentary(variableName, resetValue, [scope])
 ///     Adds a variable to be automatically reset at the end of the first cycle per tick
 ///     A momentary variable will only be reset if the clock needs to execute one or more cycles
-///     The variable's scope is typically determined by who calls .variable_momentary(), though for structs you may need to specify the optional [scope] argument
+///     The variable's scope is typically determined by who calls .VariableMomentary(), though for structs you may need to specify the optional [scope] argument
 ///   
-///   .variable_interpolate(inputVariableName, outputVariableName)
+///   .VariableInterpolate(inputVariableName, outputVariableName, [scope])
 ///     Adds a variable to be smoothly interpolated between iota ticks. The interpolated value is passed to the given output variable name
-///     Interpolated variables are always updated every time .tick() is called, even if the clock does not need to execute any cycles
-///     The variables' scope is typically determined by who calls .variable_interpolate(), though for structs you may need to specify the optional [scope] argument
+///     Interpolated variables are always updated every time .Tick() is called, even if the clock does not need to execute any cycles
+///     The variables' scope is typically determined by who calls .VariableInterpolate(), though for structs you may need to specify the optional [scope] argument
 ///       N.B. Interpolated variables will always be (at most) a frame behind the actual value of the input variable
 ///            Most of this time this makes no difference but it's not ideal if you're looking for frame-perfect gameplay
 ///   
-///   .variable_interpolate_angle(inputVariableName, outputVariableName)
+///   .VariableInterpolateAngle(inputVariableName, outputVariableName, [scope])
 ///     As above, but the value is interpolated as an angle measured in degrees. The output value will be an angle from -360 to +360.
 ///   
 ///   
 ///   
-///   .add_alarm(milliseconds, method)
+///   .AddAlarm(milliseconds, method)
 ///     Adds a method to be executed after the given number of milliseconds have passed for this clock
 ///     The scope of the method is maintained. If the instance/struct attached to the method is removed, the method will not execute
 ///     iota alarms respect time dilation and pausing - N.B. Changing a clock's update frequency will cause alarms to desynchronise
 ///   
-///   .add_alarm_cycles(cycles, method)
+///   .AddAlarmCycles(cycles, method)
 ///     Adds a method to be executed after the given number of cycles have passed for this clock
 ///     The scope of the method is maintained. If the instance/struct attached to the method is removed, the method will not execute
 ///     iota alarms respect time dilation and pausing - N.B. Changing a clock's update frequency will cause alarms to desynchronise
 ///   
 ///   
 ///   
-///   .set_pause(state)
+///   .SetPause(state)
 ///     Sets whether the clock is paused
 ///     A paused clock will execute no methods nor modify any variables
 ///     
-///   .get_pause(state)
+///   .GetPause(state)
 ///     Returns whether the clock is paused
 ///     
-///   .set_update_frequency(frequency)
+///   .SetUpdateFrequency(frequency)
 ///     Sets the update frequency for the clock. This value should generally not be changed once you've set it
 ///     This value will default to matching your game's target framerate at the time that the clock was instantiated
 ///     
-///   .get_update_frequency()
+///   .GetUpdateFrequency()
 ///     Returns the update frequency for the clock
 ///   
-///   .set_time_dilation(multiplier)
+///   .SetTimeDilation(multiplier)
 ///     Sets the time dilation multiplier. A value of 1 is no time dilation, 0.5 is half speed, 2.0 is double speed
 ///     Time dilation values cannot be set lower than 0
 ///     
-///   .get_time_dilation(state)
+///   .GetTimeDilation(state)
 ///     Returns the time dilation multiplier
 ///     
-///   .get_remainder()
+///   .GetRemainder()
 ///     Returns the remainder on the accumulator
 
-
-
-function iota_clock() constructor
+function IotaClock(_identifier = undefined) constructor
 {
-    var _identifier = (argument_count > 0)? argument[0] : undefined;
+    __identifier      = _identifier
+    __updateFrequency = game_get_speed(gamespeed_fps);
+    __paused          = false;
+    __dilation        = 1.0;
+    __secondsPerCycle = 1 / (__dilation*__updateFrequency);
+    __accumulator     = 0;
     
-    __identifier       = _identifier
-    __update_frequency = game_get_speed(gamespeed_fps);
-    __paused           = false;
-    __dilation         = 1.0;
-    __accumulator      = 0;
-    
-    __children_struct       = {};
-    __begin_method_array    = [];
-    __cycle_method_array    = [];
-    __end_method_array      = [];
-    __var_momentary_array   = [];
-    __var_interpolate_array = [];
-    __alarm_array           = [];
+    __childrenStruct      = {};
+    __beginMethodArray    = [];
+    __cycleMethodArray    = [];
+    __endMethodArray      = [];
+    __varMomentaryArray   = [];
+    __varInterpolateArray = [];
+    __alarmArray          = [];
     
     #region Tick
     
-    static tick = function()
+    static Tick = function()
     {
         IOTA_CURRENT_CLOCK = __identifier;
+        global.__iotaCurrentClock = self;
         
         //Get the clamped delta time value for this GameMaker frame
         //We clamp the bottom end to ensure that games still chug along even if the device is really grinding
@@ -122,14 +120,15 @@ function iota_clock() constructor
         if (!__paused && (__dilation > 0))
         {
             __accumulator += _delta;
-            IOTA_CYCLES_FOR_CLOCK = floor(__dilation * __update_frequency * __accumulator);
-            __accumulator -= IOTA_CYCLES_FOR_CLOCK / (__dilation*__update_frequency);
+            IOTA_CYCLES_FOR_CLOCK = floor(__accumulator/__secondsPerCycle);
+            __accumulator -= IOTA_CYCLES_FOR_CLOCK*__secondsPerCycle;
         }
         
         if (IOTA_CYCLES_FOR_CLOCK > 0)
         {
+            IOTA_SECONDS_PER_CYCLE = __secondsPerCycle;
             IOTA_CYCLE_INDEX = -1;
-            __execute_methods(__IOTA_CHILD.BEGIN_METHOD);
+            __execute_methods(__IOTA_CHILD.__BEGIN_METHOD);
             
             //Execute cycles one at a time
             //Note that we're processing all methods for a cycle, then move onto the next cycle
@@ -138,14 +137,14 @@ function iota_clock() constructor
             repeat(IOTA_CYCLES_FOR_CLOCK)
             {
                 //Capture interpolated variable state before the final cycle
-                if (IOTA_CYCLE_INDEX == IOTA_CYCLES_FOR_CLOCK-1) __variables_interpolate_refresh();
+                if (IOTA_CYCLE_INDEX == IOTA_CYCLES_FOR_CLOCK-1) __VariablesInterpolateRefresh();
                 
                 var _i = 0;
-                repeat(array_length(__alarm_array))
+                repeat(array_length(__alarmArray))
                 {
-                    if (__alarm_array[_i].__Tick())
+                    if (__alarmArray[_i].__Tick())
                     {
-                        array_delete(__alarm_array, _i, 1);
+                        array_delete(__alarmArray, _i, 1);
                     }
                     else
                     {
@@ -153,71 +152,73 @@ function iota_clock() constructor
                     }
                 }
                 
-                __execute_methods(__IOTA_CHILD.CYCLE_METHOD);
+                __execute_methods(__IOTA_CHILD.__CYCLE_METHOD);
                 
                 //Reset momentary variables after the first cycle
-                if (IOTA_CYCLE_INDEX == 0) __variables_momentary_reset();
+                if (IOTA_CYCLE_INDEX == 0) __VariablesMomentaryReset();
                 
                 IOTA_CYCLE_INDEX++;
             }
             
             IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_CLOCK;
-            __execute_methods(__IOTA_CHILD.END_METHOD);
+            __execute_methods(__IOTA_CHILD.__END_METHOD);
         }
         
         //Update our output interpolated variables
-        if (!__paused && (__dilation > 0)) __variables_interpolate_update();
-    
+        if (!__paused && (__dilation > 0)) __VariablesInterpolateUpdate();
+        
+        var _cycles = IOTA_CYCLES_FOR_CLOCK;
+        
         //Make sure to reset these macros so they can't be accessed outside of iota methods
-        IOTA_CURRENT_CLOCK    = undefined;
-        IOTA_CYCLES_FOR_CLOCK = undefined;
-        IOTA_CYCLE_INDEX      = undefined;
+        IOTA_CURRENT_CLOCK     = undefined;
+        IOTA_CYCLES_FOR_CLOCK  = undefined;
+        IOTA_CYCLE_INDEX       = undefined;
+        IOTA_SECONDS_PER_CYCLE = undefined;
+        
+        global.__iotaCurrentClock = undefined;
+        
+        return _cycles;
     }
     
     #endregion
     
     #region Methods Adders
     
-    static add_begin_method = function(_method)
+    static AddBeginMethod = function(_method)
     {
-        return __add_method_generic(_method, __IOTA_CHILD.BEGIN_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__BEGIN_METHOD);
     }
     
-    static add_cycle_method = function(_method)
+    static AddCycleMethod = function(_method)
     {
-        return __add_method_generic(_method, __IOTA_CHILD.CYCLE_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__CYCLE_METHOD);
     }
     
-    static add_end_method = function(_method)
+    static AddEndMethod = function(_method)
     {
-        return __add_method_generic(_method, __IOTA_CHILD.END_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__END_METHOD);
     }
     
     #endregion
     
     #region Variables
     
-    static variable_momentary = function()
+    static VariableMomentary = function(_name, _reset, _scope = other)
     {
-        var _name  = argument[0];
-        var _reset = argument[1];
-        var _scope = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
-        
-        var _child_data = __get_child_data(_scope);
+        var _childData = __GetChildData(_scope);
         
         //Catch weird errors due to scoping
-        if (!is_array(_child_data))
+        if (!is_array(_childData))
         {
-            show_error("iota:\nScope could not be determined (data type=" + typeof(_scope) + ")\n ", true);
+            __IotaError("Scope could not be determined (data type=", typeof(_scope), ")");
         }
         
-        var _array = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
-        
+        var _array = _childData[__IOTA_CHILD.__VARIABLES_MOMENTARY];
         if (_array == undefined)
         {
             _array = [];
-            _child_data[@ __IOTA_CHILD.VARIABLES_MOMENTARY] = _array;
-            array_push(__var_momentary_array, _child_data);
+            _childData[@ __IOTA_CHILD.__VARIABLES_MOMENTARY] = _array;
+            array_push(__varMomentaryArray, _childData);
         }
         
         var _i = 0;
@@ -235,47 +236,39 @@ function iota_clock() constructor
         array_push(_array, _name, _reset);
     }
     
-    static variable_interpolate = function()
+    static VariableInterpolate = function(_inName, _outName, _scope = other)
     {
-        var _in_name  = argument[0];
-        var _out_name = argument[1];
-        var _scope    = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
-        
-        return __variable_interpolate_common(_in_name, _out_name, _scope, false);
+        return __VariableInterpolateCommon(_inName, _outName, _scope, false);
     }
     
-    static variable_interpolate_angle = function()
+    static VariableInterpolateAngle = function(_inName, _outName, _scope = other)
     {
-        var _in_name  = argument[0];
-        var _out_name = argument[1];
-        var _scope    = ((argument_count > 2) && (argument[2] != undefined))? argument[2] : other;
-        
-        return __variable_interpolate_common(_in_name, _out_name, _scope, true);
+        return __VariableInterpolateCommon(_inName, _outName, _scope, true);
     }
     
-    static __variable_interpolate_common = function(_in_name, _out_name, _scope, _is_angle)
+    static __VariableInterpolateCommon = function(_inName, _outName, _scope, _is_angle)
     {
-        var _child_data = __get_child_data(_scope);
+        var _childData = __GetChildData(_scope);
         
         //Catch weird errors due to scoping
-        if (!is_array(_child_data))
+        if (!is_array(_childData))
         {
-            show_error("iota:\nScope could not be determined (data type=" + typeof(_scope) + ")\n ", true);
+            __IotaError("Scope could not be determined (data type=", typeof(_scope), ")");
         }
         
-        var _array = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+        var _array = _childData[__IOTA_CHILD.__VARIABLES_INTERPOLATE];
         
         if (_array == undefined)
         {
             _array = [];
-            _child_data[@ __IOTA_CHILD.VARIABLES_INTERPOLATE] = _array;
-            array_push(__var_interpolate_array, _child_data);
+            _childData[@ __IOTA_CHILD.__VARIABLES_INTERPOLATE] = _array;
+            array_push(__varInterpolateArray, _childData);
         }
         
         var _i = 0;
         repeat(array_length(_array) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
         {
-            if (_array[_i] == _in_name)
+            if (_array[_i] == _inName)
             {
                 //This variable already exists
                 return undefined;
@@ -284,104 +277,123 @@ function iota_clock() constructor
             _i += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
         }
         
-        array_push(_array, _in_name, _out_name, variable_instance_get(_scope, _in_name), _is_angle);
-        variable_instance_set(_scope, _out_name, variable_instance_get(_scope, _in_name));
+        array_push(_array, _inName, _outName, variable_instance_get(_scope, _inName), _is_angle);
+        variable_instance_set(_scope, _outName, variable_instance_get(_scope, _inName));
+    }
+    
+    static __VariableSkipInterpolation = function(_outName, _scope)
+    {
+        var _childData = __GetChildData(_scope);
+        
+        var _variables = _childData[__IOTA_CHILD.__VARIABLES_INTERPOLATE];
+        var _j = 0;
+        repeat(array_length(_variables) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
+        {
+            if (_variables[@ _j + __IOTA_INTERPOLATED_VARIABLE.__OUT_NAME] == _outName)
+            {
+                _variables[@ _j + __IOTA_INTERPOLATED_VARIABLE.__PREV_VALUE] = variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.__IN_NAME]);
+            }
+            
+            _j += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
+        }
     }
     
     #endregion
     
     #region Alarms
     
-    static add_alarm = function(_time, _method)
+    static AddAlarm = function(_time, _method)
     {
-        return new __iota_class_alarm(self, (_time / 1000) * get_update_frequency(), _method);
+        return new __IotaClassAlarm(self, (_time / 1000) * GetUpdateFrequency(), _method);
     }
     
-    static add_alarm_cycles = function(_cycles, _method)
+    static AddAlarmCycles = function(_cycles, _method)
     {
-        return new __iota_class_alarm(self, _cycles, _method);
+        return new __IotaClassAlarm(self, _cycles, _method);
     }
     
     #endregion
     
     #region Pause / Target Framerate / Time Dilation
     
-    static set_pause = function(_state)
+    static SetPause = function(_state)
     {
         __paused = _state;
     }
     
-    static get_pause = function()
+    static GetPause = function()
     {
         return __paused;
     }
     
-    static set_update_frequency = function(_frequency)
+    static SetUpdateFrequency = function(_frequency)
     {
-        __update_frequency = _frequency;
+        __updateFrequency = _frequency;
+        __secondsPerCycle = 1 / (__dilation*__updateFrequency);
     }
     
-    static get_update_frequency = function()
+    static GetUpdateFrequency = function()
     {
-        return __update_frequency;
+        return __updateFrequency;
     }
     
-    static set_time_dilation = function(_multiplier)
+    static SetTimeDilation = function(_multiplier)
     {
         __dilation = max(0, _multiplier);
+        __secondsPerCycle = 1 / (__dilation*__updateFrequency);
     }
     
-    static get_time_dilation = function()
+    static GetTimeDilation = function()
     {
         return __dilation;
     }
     
-    static get_remainder = function()
+    static GetRemainder = function()
     {
-        return __dilation*__update_frequency*__accumulator;
+        return __dilation*__updateFrequency*__accumulator;
     }
     
     #endregion
     
     #region (Private Methods)
     
-    function __execute_methods(_method_type)
+    static __execute_methods = function(_method_type)
     {
         switch(_method_type)
         {
-            case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
-            case __IOTA_CHILD.CYCLE_METHOD: var _array = __cycle_method_array; break;
-            case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
+            case __IOTA_CHILD.__BEGIN_METHOD: var _array = __beginMethodArray; break;
+            case __IOTA_CHILD.__CYCLE_METHOD: var _array = __cycleMethodArray; break;
+            case __IOTA_CHILD.__END_METHOD:   var _array = __endMethodArray;   break;
         }
         
         var _i = 0;
         repeat(array_length(_array))
         {
-            var _child_data = _array[_i];
+            var _childData = _array[_i];
             
             //If another process found that this child no longer exists, remove it from this array too
-            if (_child_data[__IOTA_CHILD.DEAD])
+            if (_childData[__IOTA_CHILD.__DEAD])
             {
                 array_delete(_array, _i, 1);
                 continue;
             }
             
-            var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
+            var _scope = _childData[__IOTA_CHILD.__SCOPE];
+            switch(__IotaScopeExists(_scope, _childData[__IOTA_CHILD.__IOTA_ID]))
             {
                 case 1: //Alive instance
-                    with(_scope) _child_data[_method_type]();
+                    with(_scope) _childData[_method_type]();
                 break;
                 
                 case 2: //Alive struct
-                    with(_scope.ref) _child_data[_method_type]();
+                    with(_scope.ref) _childData[_method_type]();
                 break;
                 
                 case -1: //Dead instance
                 case -2: //Dead struct
-                case -3: //Instance has different child ID
+				case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
-                    __mark_child_as_dead(_child_data);
+                    __MarkChildAsDead(_childData);
                     continue;
                 break;
                 
@@ -393,13 +405,13 @@ function iota_clock() constructor
         }
     }
     
-    static __mark_child_as_dead = function(_child_data)
+    static __MarkChildAsDead = function(_childData)
     {
-        variable_struct_remove(__children_struct, _child_data[__IOTA_CHILD.IOTA_ID]);
-        _child_data[@ __IOTA_CHILD.DEAD] = true;
+        variable_struct_remove(__childrenStruct, _childData[__IOTA_CHILD.__IOTA_ID]);
+        _childData[@ __IOTA_CHILD.__DEAD] = true;
     }
     
-    static __add_method_generic = function(_method, _method_type)
+    static __AddMethodGeneric = function(_method, _method_type)
     {
         if (is_numeric(_method))
         {
@@ -410,64 +422,63 @@ function iota_clock() constructor
             }
             else
             {
-                show_error("iota:\nCould not find script index " + string(_method) + "\n ", true);
+                __IotaError("Could not find script index ", _method);
             }
         }
         else if (!is_method(_method))
         {
-            show_error("iota:\nMethod was an incorrect data type (" + typeof(_method) + ")\n ", true);
+            __IotaError("Method was an incorrect data type (", typeof(_method), ")");
         }
         
         var _scope = method_get_self(_method);
+        if (_scope == undefined) _scope = other;
         
         switch(_method_type)
         {
-            case __IOTA_CHILD.BEGIN_METHOD: var _array = __begin_method_array; break;
-            case __IOTA_CHILD.CYCLE_METHOD: var _array = __cycle_method_array; break;
-            case __IOTA_CHILD.END_METHOD:   var _array = __end_method_array;   break;
+            case __IOTA_CHILD.__BEGIN_METHOD: var _array = __beginMethodArray; break;
+            case __IOTA_CHILD.__CYCLE_METHOD: var _array = __cycleMethodArray; break;
+            case __IOTA_CHILD.__END_METHOD:   var _array = __endMethodArray;   break;
         }
         
-        var _child_data = __get_child_data(_scope);
+        var _childData = __GetChildData(_scope);
         
         //Catch weird errors due to scoping
-        if (!is_array(_child_data))
+        if (!is_array(_childData))
         {
-            show_error("iota:\nScope could not be determined (data type=" + typeof(_scope) + ")\n ", true);
+            __IotaError("iota:\nScope could not be determined (data type=", typeof(_scope), ")");
         }
         
         //If we haven't seen this method type before for this child, add the child to the relevant array
-        if (_child_data[_method_type] == undefined) array_push(_array, _child_data);
+        if (_childData[_method_type] == undefined) array_push(_array, _childData);
         
         //Set the relevant element in the data packet
         //We strip the scope off the method so we don't accidentally keep structs alive
-        _child_data[@ _method_type] = method(undefined, _method);
+        _childData[@ _method_type] = method(undefined, _method);
     }
     
-    static __get_child_data = function(_scope)
+    static __GetChildData = function(_scope)
     {
-        var _is_instance = false;
-        var _is_struct   = false;
-        var _id          = undefined;
+        var _isInstance = false;
+        var _isStruct   = false;
+        var _id         = undefined;
         
         if (is_numeric(_scope))
         {
             if (_scope < 100000)
             {
-                show_error("iota:\nMethod scope must be an instance or a struct, object indexes are not permitted\n ", true);
+                __IotaError("Method scope must be an instance or a struct, object indexes are not permitted");
             }
         }
         else if (!is_struct(_scope) && !instance_exists(_scope))
         {
-            show_error("iota:\nMethod scope must be an instance or a struct, found scope's data type was " + typeof(_scope) + "\n ", true);
+            __IotaError("Method scope must be an instance or a struct, found scope's data type was ", typeof(_scope));
         }
         
-        var _child_id = __iota_ensure_child_id(_scope);
-        
-        //Fetch the data packet from the clock's data struct
-        var _child_data = __children_struct[$ _child_id];
-        
+        var _childID   = __IotaEnsureChildID(_scope);
+        var _childData = __childrenStruct[$ _childID];
+		
         //If this scope didn't have any data for this clock, create some
-        if (_child_data == undefined)
+        if (_childData == undefined)
         {
             //If the scope is a real number then presume it's an instance ID
             if (is_numeric(_scope))
@@ -477,7 +488,7 @@ function iota_clock() constructor
                 with(_scope)
                 {
                     _scope = self;
-                    _is_instance = true;
+                    _isInstance = true;
                     _id = id;
                     break;
                 }
@@ -492,7 +503,7 @@ function iota_clock() constructor
                 {
                     if (instance_exists(_id))
                     {
-                        _is_instance = true;
+                        _isInstance = true;
                     }
                     else
                     {
@@ -502,7 +513,7 @@ function iota_clock() constructor
                             instance_activate_object(_id);
                             if (instance_exists(_id))
                             {
-                                _is_instance = true;
+                                _isInstance = true;
                                 instance_deactivate_object(_id);
                             }
                         }
@@ -510,56 +521,56 @@ function iota_clock() constructor
                 }
                 else if (is_struct(_scope))
                 {
-                    _is_struct = true;
+                    _isStruct = true;
                 }
             }
             
             //Give this scope a unique iota ID
             //This'll save us some pain later if we need to add a different sort of method
-            variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, _child_id);
+            variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, _childID);
             
             //Create a new data packet and set it up
-            var _child_data = array_create(__IOTA_CHILD.__SIZE, undefined);
-            _child_data[@ __IOTA_CHILD.IOTA_ID] = _child_id;
-            _child_data[@ __IOTA_CHILD.SCOPE  ] = (_is_instance? _id : weak_ref_create(_scope));
-            _child_data[@ __IOTA_CHILD.DEAD   ] = false;
-            
+            var _childData = array_create(__IOTA_CHILD.__SIZE, undefined);
+            _childData[@ __IOTA_CHILD.__IOTA_ID] = _childID;
+            _childData[@ __IOTA_CHILD.__SCOPE  ] = (_isInstance? _id : weak_ref_create(_scope));
+            _childData[@ __IOTA_CHILD.__DEAD   ] = false;
+        
             //Then slot this data packet into the clock's data struct + array
-            __children_struct[$ _child_id] = _child_data;
+            __childrenStruct[$ _childID] = _childData;
         }
         
-        return _child_data;
+        return _childData;
     }
     
-    static __variables_momentary_reset = function()
+    static __VariablesMomentaryReset = function()
     {
-        var _array = __var_momentary_array;
+        var _array = __varMomentaryArray;
         
         var _i = 0;
         repeat(array_length(_array))
         {
-            var _child_data = _array[_i];
+            var _childData = _array[_i];
             
             //If another process found that this child no longer exists, remove it from this array too
-            if (_child_data[__IOTA_CHILD.DEAD])
+            if (_childData[__IOTA_CHILD.__DEAD])
             {
                 array_delete(_array, _i, 1);
                 continue;
             }
             
-            var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
+            var _scope = _childData[__IOTA_CHILD.__SCOPE];
+            switch(__IotaScopeExists(_scope, _childData[__IOTA_CHILD.__IOTA_ID]))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
                     //If our scope isn't a real then it's a struct, so jump into the struct itself
                     if (!is_numeric(_scope)) _scope = _scope.ref;
                     
-                    var _variables = _child_data[__IOTA_CHILD.VARIABLES_MOMENTARY];
+                    var _variables = _childData[__IOTA_CHILD.__VARIABLES_MOMENTARY];
                     var _j = 0;
                     repeat(array_length(_variables) div __IOTA_MOMENTARY_VARIABLE.__SIZE)
                     {
-                        variable_instance_set(_scope, _variables[_j + __IOTA_MOMENTARY_VARIABLE.NAME], _variables[_j + __IOTA_MOMENTARY_VARIABLE.DEFAULT_VALUE]);
+                        variable_instance_set(_scope, _variables[_j + __IOTA_MOMENTARY_VARIABLE.__NAME], _variables[_j + __IOTA_MOMENTARY_VARIABLE.__DEFAULT_VALUE]);
                         _j += __IOTA_MOMENTARY_VARIABLE.__SIZE;
                     }
                 break;
@@ -568,7 +579,7 @@ function iota_clock() constructor
                 case -2: //Dead struct
                 case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
-                    __mark_child_as_dead(_child_data);
+                    __MarkChildAsDead(_childData);
                     continue;
                 break;
                 
@@ -580,35 +591,35 @@ function iota_clock() constructor
         }
     }
     
-    static __variables_interpolate_refresh = function()
+    static __VariablesInterpolateRefresh = function()
     {
-        var _array = __var_interpolate_array;
+        var _array = __varInterpolateArray;
         
         var _i = 0;
         repeat(array_length(_array))
         {
-            var _child_data = _array[_i];
+            var _childData = _array[_i];
             
             //If another process found that this child no longer exists, remove it from this array too
-            if (_child_data[__IOTA_CHILD.DEAD])
+            if (_childData[__IOTA_CHILD.__DEAD])
             {
                 array_delete(_array, _i, 1);
                 continue;
             }
             
-            var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
+            var _scope = _childData[__IOTA_CHILD.__SCOPE];
+            switch(__IotaScopeExists(_scope, _childData[__IOTA_CHILD.__IOTA_ID]))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
                     //If our scope isn't a real then it's a struct, so jump into the struct itself
                     if (!is_numeric(_scope)) _scope = _scope.ref;
                     
-                    var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+                    var _variables = _childData[__IOTA_CHILD.__VARIABLES_INTERPOLATE];
                     var _j = 0;
                     repeat(array_length(_variables) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
                     {
-                        _variables[@ _j + __IOTA_INTERPOLATED_VARIABLE.PREV_VALUE] = variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.IN_NAME]);
+                        _variables[@ _j + __IOTA_INTERPOLATED_VARIABLE.__PREV_VALUE] = variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.__IN_NAME]);
                         _j += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
                     }
                 break;
@@ -617,7 +628,7 @@ function iota_clock() constructor
                 case -2: //Dead struct
                 case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
-                    __mark_child_as_dead(_child_data);
+                    __MarkChildAsDead(_childData);
                     continue;
                 break;
                 
@@ -629,46 +640,46 @@ function iota_clock() constructor
         }
     }
     
-    static __variables_interpolate_update = function()
+    static __VariablesInterpolateUpdate = function()
     {
-        var _remainder = get_remainder();
-        var _array = __var_interpolate_array;
+        var _remainder = GetRemainder();
+        var _array = __varInterpolateArray;
         
         var _i = 0;
         repeat(array_length(_array))
         {
-            var _child_data = _array[_i];
+            var _childData = _array[_i];
             
             //If another process found that this child no longer exists, remove it from this array too
-            if (_child_data[__IOTA_CHILD.DEAD])
+            if (_childData[__IOTA_CHILD.__DEAD])
             {
                 array_delete(_array, _i, 1);
                 continue;
             }
             
-            var _scope = _child_data[__IOTA_CHILD.SCOPE];
-            switch(__iota_scope_exists(_scope, _child_data[__IOTA_CHILD.IOTA_ID]))
+            var _scope = _childData[__IOTA_CHILD.__SCOPE];
+            switch(__IotaScopeExists(_scope, _childData[__IOTA_CHILD.__IOTA_ID]))
             {
                 case 1: //Alive instance
                 case 2: //Alive struct
                     //If our scope isn't a real then it's a struct, so jump into the struct itself
                     if (!is_numeric(_scope)) _scope = _scope.ref;
                     
-                    var _variables = _child_data[__IOTA_CHILD.VARIABLES_INTERPOLATE];
+                    var _variables = _childData[__IOTA_CHILD.__VARIABLES_INTERPOLATE];
                     var _j = 0;
                     repeat(array_length(_variables) div __IOTA_INTERPOLATED_VARIABLE.__SIZE)
                     {
-                        if (_variables[_j + __IOTA_INTERPOLATED_VARIABLE.IS_ANGLE])
+                        if (_variables[_j + __IOTA_INTERPOLATED_VARIABLE.__IS_ANGLE])
                         {
-                            var _old_value = _variables[_j + __IOTA_INTERPOLATED_VARIABLE.PREV_VALUE];
-                            var _new_value = _old_value + _remainder*angle_difference(variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.IN_NAME]), _old_value);
+                            var _oldValue = _variables[_j + __IOTA_INTERPOLATED_VARIABLE.__PREV_VALUE];
+                            var _newValue = _oldValue + _remainder*angle_difference(variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.__IN_NAME]), _oldValue);
                         }
                         else
                         {
-                            var _new_value = lerp(_variables[_j + __IOTA_INTERPOLATED_VARIABLE.PREV_VALUE], variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.IN_NAME]), _remainder);
+                            var _newValue = lerp(_variables[_j + __IOTA_INTERPOLATED_VARIABLE.__PREV_VALUE], variable_instance_get(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.__IN_NAME]), _remainder);
                         }
                         
-                        variable_instance_set(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.OUT_NAME], _new_value);
+                        variable_instance_set(_scope, _variables[_j + __IOTA_INTERPOLATED_VARIABLE.__OUT_NAME], _newValue);
                         
                         _j += __IOTA_INTERPOLATED_VARIABLE.__SIZE;
                     }
@@ -678,7 +689,7 @@ function iota_clock() constructor
                 case -2: //Dead struct
                 case -3: //Instance has different child ID
                     array_delete(_array, _i, 1);
-                    __mark_child_as_dead(_child_data);
+                    __MarkChildAsDead(_childData);
                     continue;
                 break;
                 
@@ -699,48 +710,51 @@ function iota_clock() constructor
 
 #region (System)
 
-#macro __IOTA_VERSION  "2.3.4"
-#macro __IOTA_DATE     "2022-08-03"
+#macro __IOTA_VERSION  "3.0.0"
+#macro __IOTA_DATE     "2022-11-02"
 
-__iota_trace("Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
+__IotaTrace("Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
 
-global.__iota_unique_id = 0;
+global.__iotaUniqueID     = 0;
+global.__iotaCurrentClock = undefined;
 
-#macro IOTA_CURRENT_CLOCK     global.__iota_current_clock
-#macro IOTA_CYCLES_FOR_CLOCK  global.__iota_total_cycles
-#macro IOTA_CYCLE_INDEX       global.__iota_cycle_index
+#macro IOTA_CURRENT_CLOCK       global.__iotaCurrentIdentifier
+#macro IOTA_CYCLES_FOR_CLOCK    global.__iotaTotalCycles
+#macro IOTA_CYCLE_INDEX         global.__iotaCycleIndex
+#macro IOTA_SECONDS_PER_CYCLE   global.__iotaSecondsPerCycle  
 
-IOTA_CURRENT_CLOCK    = undefined;
-IOTA_CYCLES_FOR_CLOCK = undefined;
-IOTA_CYCLE_INDEX      = undefined;
+IOTA_CURRENT_CLOCK     = undefined;
+IOTA_CYCLES_FOR_CLOCK  = undefined;
+IOTA_CYCLE_INDEX       = undefined;
+IOTA_SECONDS_PER_CYCLE = undefined;
 
 enum __IOTA_CHILD
 {
-    IOTA_ID,
-    SCOPE,
-    BEGIN_METHOD,
-    CYCLE_METHOD,
-    END_METHOD,
-    DEAD,
-    VARIABLES_MOMENTARY,
-    VARIABLES_INTERPOLATE,
+    __IOTA_ID,
+    __SCOPE,
+    __BEGIN_METHOD,
+    __CYCLE_METHOD,
+    __END_METHOD,
+    __DEAD,
+    __VARIABLES_MOMENTARY,
+    __VARIABLES_INTERPOLATE,
     __SIZE
 }
 
 enum __IOTA_MOMENTARY_VARIABLE
 {
-    NAME,
-    DEFAULT_VALUE,
+    __NAME,
+    __DEFAULT_VALUE,
     __SIZE,
 }
 
 
 enum __IOTA_INTERPOLATED_VARIABLE
 {
-    IN_NAME,
-    OUT_NAME,
-    PREV_VALUE,
-    IS_ANGLE,
+    __IN_NAME,
+    __OUT_NAME,
+    __PREV_VALUE,
+    __IS_ANGLE,
     __SIZE,
 }
 
@@ -748,16 +762,16 @@ enum __IOTA_INTERPOLATED_VARIABLE
 
 
 
-function __iota_class_alarm(_clock, _cycles, _method) constructor
+function __IotaClassAlarm(_clock, _cycles, _method) constructor
 {
     __clock     = undefined;
     __total     = undefined;
     __remaining = undefined;
     __func      = undefined;
     __scope     = undefined;
-    __iotaID    = undefined;
+	__iotaID    = undefined;
     
-    var _scope = __iota_get_scope(method_get_self(_method));
+    var _scope = __IotaGetScope(method_get_self(_method));
     if (_scope != undefined)
     {
         __clock     = _clock;
@@ -765,13 +779,13 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
         __remaining = _cycles;
         __func      = method(undefined, _method);
         __scope     = _scope;
-        __iotaID    = __iota_ensure_child_id(_scope);
+		__iotaID    = __IotaEnsureChildID(_scope);
         
-        array_push(__clock.__alarm_array, self);
+        array_push(__clock.__alarmArray, self);
     }
     else
     {
-        __iota_trace("Warning! Scope was <undefined>, alarm will never execute (stack = ", debug_get_callstack(), ")");
+        __IotaTrace("Warning! Scope was <undefined>, alarm will never execute (stack = ", debug_get_callstack(), ")");
     }
     
     
@@ -792,14 +806,14 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
         __remaining--;
         if (__remaining <= 0)
         {
-            if (__iota_scope_exists(__scope, __iotaID))
+            if (__IotaScopeExists(__scope, __iotaID))
             {
                 var _func = __func;
                 with(__scope) _func();
             }
             else
             {
-                __iota_trace("Warning! Scope was for alarm no longer exists, alarm will never execute (stack = ", debug_get_callstack(), ")");
+                __IotaTrace("Warning! Scope was for alarm no longer exists, alarm will never execute (stack = ", debug_get_callstack(), ")");
             }
             
             return true;
@@ -813,11 +827,11 @@ function __iota_class_alarm(_clock, _cycles, _method) constructor
 
 
 
-function __iota_get_scope(_scope)
+function __IotaGetScope(_scope)
 {
-    var _is_instance = false;
-    var _is_struct   = false;
-    var _id          = undefined;
+    var _isInstance = false;
+    var _isStruct   = false;
+    var _id         = undefined;
     
     //If the scope is a real number then presume it's an instance ID
     if (is_numeric(_scope))
@@ -827,7 +841,7 @@ function __iota_get_scope(_scope)
         with(_scope)
         {
             _scope = self;
-            _is_instance = true;
+            _isInstance = true;
             _id = id;
             break;
         }
@@ -842,7 +856,7 @@ function __iota_get_scope(_scope)
         {
             if (instance_exists(_id))
             {
-                _is_instance = true;
+                _isInstance = true;
             }
             else
             {
@@ -852,7 +866,7 @@ function __iota_get_scope(_scope)
                     instance_activate_object(_id);
                     if (instance_exists(_id))
                     {
-                        _is_instance = true;
+                        _isInstance = true;
                         instance_deactivate_object(_id);
                     }
                 }
@@ -860,24 +874,24 @@ function __iota_get_scope(_scope)
         }
         else if (is_struct(_scope))
         {
-            _is_struct = true;
+            _isStruct = true;
         }
     }
     
-    if (_is_instance || _is_struct)
+    if (_isInstance || _isStruct)
     {
-        return (_is_instance? _id : weak_ref_create(_scope));
+        return (_isInstance? _id : weak_ref_create(_scope));
     }
 }
 
-function __iota_ensure_child_id(_scope)
+function __IotaEnsureChildID(_scope)
 {
     var _child_id = variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME);
     if (_child_id == undefined)
     {
-        global.__iota_unique_id++;
+        global.__iotaUniqueID++;
         
-        _child_id = global.__iota_unique_id;
+        _child_id = global.__iotaUniqueID;
         variable_instance_set(_scope, IOTA_ID_VARIABLE_NAME, _child_id);
     }
     
@@ -893,14 +907,14 @@ function __iota_ensure_child_id(_scope)
 ///     0 = Deactivated instance
 ///     1 = Alive instance
 ///     2 = Alive struct
-function __iota_scope_exists(_scope, _expected_child_id) //Does do deactivation check
+function __IotaScopeExists(_scope, _expectedChildID) //Does do deactivation check
 {
     if (is_numeric(_scope))
     {
         //If this scope is a real number then it's an instance ID
         if (instance_exists(_scope))
-        {
-            if ((_expected_child_id != undefined) && (variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME) != _expected_child_id))
+		{
+            if ((_expectedChildID != undefined) && (variable_instance_get(_scope, IOTA_ID_VARIABLE_NAME) != _expectedChildID))
             {
                 return -3;
             }
@@ -908,7 +922,7 @@ function __iota_scope_exists(_scope, _expected_child_id) //Does do deactivation 
             {
                 return 1;
             }
-        }
+		}
             
         if (IOTA_CHECK_FOR_DEACTIVATION)
         {
@@ -931,7 +945,7 @@ function __iota_scope_exists(_scope, _expected_child_id) //Does do deactivation 
     }
 }
 
-function __iota_trace()
+function __IotaTrace()
 {
     var _string = "iota: ";
     var _i = 0;
@@ -942,6 +956,19 @@ function __iota_trace()
     }
     
     show_debug_message(_string);
+}
+
+function __IotaError()
+{
+    var _string = "iota:\n";
+    var _i = 0;
+    repeat(argument_count)
+    {
+        _string += string(argument[_i]);
+        ++_i;
+    }
+    
+    show_error(_string + "\n ", true);
 }
 
 #endregion

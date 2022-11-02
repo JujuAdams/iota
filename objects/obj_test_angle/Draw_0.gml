@@ -1,1 +1,0 @@
-draw_line(x, y, x + lengthdir_x(300, out_angle), y + lengthdir_y(300, out_angle));
