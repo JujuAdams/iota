@@ -9,7 +9,7 @@
 
 //Variable to set in structs/instances to record their unique iota ID
 //This allows iota to disambiguate clock children across multiple method types
-#macro  IOTA_ID_VARIABLE_NAME  "__iota_unique_id__"
+#macro  IOTA_ID_VARIABLE_NAME  "__IotaUniqueID__"
 
 //These three macros are also available for use inside iota methods
 //Outside of iota methods they will return <undefined>
