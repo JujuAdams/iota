@@ -1,4 +1,4 @@
-function test_class_player(_x, _y, _clock) constructor
+function ClassTestPlayer(_x, _y, _clock) constructor
 {
     x = _x;
     y = _y;
