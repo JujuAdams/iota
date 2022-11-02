@@ -1,1 +1,1 @@
-player.draw();
+player.Draw();

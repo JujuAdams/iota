@@ -3,8 +3,8 @@ function test_class_player(_x, _y, _clock) constructor
     x = _x;
     y = _y;
     
-    oController.clock.VariableInterpolate("x", "iota_x", self);
-    oController.clock.VariableInterpolate("y", "iota_y", self);
+    oController.clock.VariableInterpolate("x", "iotaX", self);
+    oController.clock.VariableInterpolate("y", "iotaY", self);
     
     oController.clock.AddCycleMethod(function()
     {
@@ -14,8 +14,8 @@ function test_class_player(_x, _y, _clock) constructor
         if (keyboard_check(vk_right)) x += 4;
     });
     
-    static draw = function()
+    static Draw = function()
     {
-        draw_circle(iota_x, iota_y, 20, false);
+        draw_circle(iotaX, iotaY, 20, false);
     }
 }

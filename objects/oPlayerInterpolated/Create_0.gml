@@ -1,17 +1,17 @@
-velocity_x = 0;
-velocity_y = 0;
+velocityX = 0;
+velocityY = 0;
 
-left_state = false;
-right_state = false;
-jump_pressed_state = false;
+leftState = false;
+rightState = false;
+jumpPressedState = false;
 
 
 
-//Reset jump_pressed_state at the end of the first cycle
-oController.clock.VariableMomentary("jump_pressed_state", false);
-//Set iota_x/iota_y to the interpolated value of x/y
-oController.clock.VariableInterpolate("x", "iota_x");
-oController.clock.VariableInterpolate("y", "iota_y");
+//Reset jumpPressedState at the end of the first cycle
+oController.clock.VariableMomentary("jumpPressedState", false);
+//Set iotaX/iotaY to the interpolated value of x/y
+oController.clock.VariableInterpolate("x", "iotaX");
+oController.clock.VariableInterpolate("y", "iotaY");
 
 
 
@@ -19,19 +19,19 @@ oController.clock.AddCycleMethod(function()
 {
     //Move left/right
     //This is continuous input so we don't want to clear these states
-    if (left_state) velocity_x -= 2;
-    if (right_state) velocity_x += 2;
+    if (leftState) velocityX -= 2;
+    if (rightState) velocityX += 2;
     
     //Do a basic jump if 1) we're on the groud and 2) the player has pressed space
-    if ((y >= ystart) && jump_pressed_state) velocity_y -= 20;
+    if ((y >= ystart) && jumpPressedState) velocityY -= 20;
     
     //Apply friction and gravity
-    velocity_x *= 0.8;
-    velocity_y += 0.8;
+    velocityX *= 0.8;
+    velocityY += 0.8;
     
     //Move the player
-    x += velocity_x;
-    y += velocity_y;
+    x += velocityX;
+    y += velocityY;
     
     //Clamp the player's position
     x = clamp(x, 0, room_width);
@@ -39,6 +39,6 @@ oController.clock.AddCycleMethod(function()
     if (y > ystart)
     {
         y = ystart;
-        velocity_y = 0;
+        velocityY = 0;
     }
 });
