@@ -60,3 +60,6 @@ if (keyboard_check_pressed(ord("A")))
         instance_destroy(oPlayerInterpolated);
     }
 }
+
+//Cheeky extra test case
+if (keyboard_check_pressed(ord("R"))) room_restart();
