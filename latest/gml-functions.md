@@ -2,13 +2,13 @@
 
 &nbsp;
 
-### `iota_clock([identifier])` ***constructor***
+### `IotaClock([identifier])` ***constructor***
 
-**Constructor returns:** `iota_clock` struct
+**Constructor returns:** `IotaClock` struct
 
 |Name          |Datatype|Purpose                                                                                                                                                        |
 |--------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`[identifier]`|any     |Unique id that will be passed into `IOTA_CURRENT_CLOCK` when the clock's `.tick()` method is executed. If not specified, this value will default to `undefined`|
+|`[identifier]`|any     |Unique id that will be passed into `IOTA_CURRENT_CLOCK` when the clock's `.Tick()` method is executed. If not specified, this value will default to `undefined`|
 
 iota's clocks are the time-keeping and code execution centre of the library. They are responsible for executing updates at the required frequency in realtime and, if so desired, will handle certain operations on variables. You can have as many clocks as you want, for example [The Swords of Ditto](https://store.steampowered.com/app/619780/The_Swords_of_Ditto_Mormos_Curse/) used three main clocks: one for gameplay, one for weather and particle effects, and one for the UI. Clocks can be paused individually and can update at different rates if so desired.
 
@@ -16,7 +16,7 @@ iota's clocks are the time-keeping and code execution centre of the library. The
 
 The created struct has the following methods (click to expand):
 
-<details><summary><code>.tick()</code></summary>
+<details><summary><code>.Tick()</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -25,14 +25,14 @@ The created struct has the following methods (click to expand):
 |----|--------|-------|
 |None|        |       |
 
-Updates the clock and executes methods that have been added to the clock (using `.add_cycle_method()` etc.). A clock will execute enough cycles to match its realtime update frequency: this means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick.
+Updates the clock and executes methods that have been added to the clock (using `.AddCycleMethod()` etc.). A clock will execute enough cycles to match its realtime update frequency: this means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick.
 
-A clock's `.tick()` should be called once every frame, probably in a persistent control instance of some sort.
+A clock's `.Tick()` should be called once every frame, probably in a persistent control instance of some sort.
 
 &nbsp;
 </details>
 
-<details><summary><code>.add_cycle_method(function)</code></summary>
+<details><summary><code>.AddCycleMethod(function)</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -46,7 +46,7 @@ Adds a function to be executed each cycle. The scope of the method passed into t
 &nbsp;
 </details>
 
-<details><summary><code>.add_begin_method(function)</code></summary>
+<details><summary><code>.AddBeginMethod(function)</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -60,7 +60,7 @@ Adds a function to be executed at the start of a tick, before any cycle methods.
 &nbsp;
 </details>
 
-<details><summary><code>.add_end_method(function)</code></summary>
+<details><summary><code>.AddEndMethod(function)</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -74,7 +74,7 @@ Adds a function to be executed at the end of a tick, after all cycle methods. En
 &nbsp;
 </details>
 
-<details><summary><code>.variable_momentary(variableName, resetValue, [scope])</code></summary>
+<details><summary><code>.VariableMomentary(variableName, resetValue, [scope])</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -85,12 +85,12 @@ Adds a function to be executed at the end of a tick, after all cycle methods. En
 |resetValue  |any            |Value to reset the variable to|
 |[scope]     |instance/struct|Scope to target when managing the variable. If no scope is specified, the instance/struct that called this function will be chosen as the scope|
 
-Adds a variable to be automatically reset at the end of the first cycle per tick. A momentary variable will only be reset if the clock needs to execute one or more cycles. The variable's scope is typically determined by who calls `.variable_momentary()`, though for structs you may need to specify the optional `[scope]` argument.
+Adds a variable to be automatically reset at the end of the first cycle per tick. A momentary variable will only be reset if the clock needs to execute one or more cycles. The variable's scope is typically determined by who calls `.VariableMomentary()`, though for structs you may need to specify the optional `[scope]` argument.
 
 &nbsp;
 </details>
 
-<details><summary><code>.variable_interpolate(inputVariableName, outputVariableName, [scope])</code></summary>
+<details><summary><code>.VariableInterpolate(inputVariableName, outputVariableName, [scope])</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -101,14 +101,14 @@ Adds a variable to be automatically reset at the end of the first cycle per tick
 |outputVariableName|string         |Name of the variable to set to the interpolated value|
 |[scope]           |instance/struct|Scope to target when managing the variable. If no scope is specified, the instance/struct that called this function will be chosen as the scope|
 
-Adds a variable to be smoothly interpolated between ticks. The interpolated value is passed to the given output variable name. Interpolated variables are always updated every time `.tick()` is called, even if the clock does not need to execute any cycles. The variables' scope is typically determined by who calls `.variable_interpolate()`, though for structs you may need to specify the optional `[scope]` argument.
+Adds a variable to be smoothly interpolated between ticks. The interpolated value is passed to the given output variable name. Interpolated variables are always updated every time `.tick()` is called, even if the clock does not need to execute any cycles. The variables' scope is typically determined by who calls `.VariableInterpolate()`, though for structs you may need to specify the optional `[scope]` argument.
 
 **Please note** that interpolated variables will always be (at most) a frame behind the actual value of the input variable. Most of this time this makes no difference but it's not ideal if you're looking for frame-perfect gameplay.
 
 &nbsp;
 </details>
 
-<details><summary><code>.variable_interpolate_angle(inputVariableName, outputVariableName, [scope])</code></summary>
+<details><summary><code>.VariableInterpolateAngle(inputVariableName, outputVariableName, [scope])</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -126,10 +126,10 @@ As above, but the value is interpolated as an angle measured in degrees. The out
 
 
 
-<details><summary><code>.add_alarm(milliseconds, method)</code></summary>
+<details><summary><code>.AddAlarm(milliseconds, method)</code></summary>
 &nbsp;
 
-**Returns:** Struct, an instance of `__iota_class_alarm`
+**Returns:** Struct, an instance of `__IotaClassAlarm`
 
 |Name        |Datatype|Purpose                               |
 |------------|--------|--------------------------------------|
@@ -145,10 +145,10 @@ The returned struct has a public method called `.Cancel()` which, when executed,
 &nbsp;
 </details>
 
-<details><summary><code>.add_alarm_cycles(cycles, method)</code></summary>
+<details><summary><code>.AddAlarmCycles(cycles, method)</code></summary>
 &nbsp;
 
-**Returns:** Struct, an instance of `__iota_class_alarm`
+**Returns:** Struct, an instance of `__IotaClassAlarm`
 
 |Name  |Datatype|Purpose                                                   |
 |------|--------|----------------------------------------------------------|
@@ -166,7 +166,7 @@ The returned struct has a public method called `.Cancel()` which, when executed,
 
 
 
-<details><summary><code>.set_pause(state)</code></summary>
+<details><summary><code>.SetPause(state)</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -180,7 +180,7 @@ Sets whether the clock is paused. A paused clock will execute no methods nor mod
 &nbsp;
 </details>
 
-<details><summary><code>.get_pause()</code></summary>
+<details><summary><code>.GetPause()</code></summary>
 &nbsp;
 
 **Returns:** Boolean, whether the clock is paused
@@ -192,7 +192,7 @@ Sets whether the clock is paused. A paused clock will execute no methods nor mod
 &nbsp;
 </details>
 
-<details><summary><code>.set_update_frequency(frequency)</code></summary>
+<details><summary><code>.SetUpdateFrequency(frequency)</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -206,7 +206,7 @@ Sets the update frequency for the clock. This value should generally not change 
 &nbsp;
 </details>
 
-<details><summary><code>.get_update_frequency()</code></summary>
+<details><summary><code>.GetUpdateFrequency()</code></summary>
 &nbsp;
 
 **Returns:** Real, the update frequency of the clock, in Hertz
@@ -218,7 +218,7 @@ Sets the update frequency for the clock. This value should generally not change 
 &nbsp;
 </details>
 
-<details><summary><code>.set_time_dilation(multiplier)</code></summary>
+<details><summary><code>.SetTimeDilation(multiplier)</code></summary>
 &nbsp;
 
 **Returns:** N/A (`undefined`)
@@ -232,7 +232,7 @@ Sets the time dilation multiplier. A value of `1.0` is no time dilation, `0.5` i
 &nbsp;
 </details>
 
-<details><summary><code>.get_time_dilation()</code></summary>
+<details><summary><code>.GetTimeDilation()</code></summary>
 &nbsp;
 
 **Returns:** Real, the time dilation multiplier
@@ -244,7 +244,7 @@ Sets the time dilation multiplier. A value of `1.0` is no time dilation, `0.5` i
 &nbsp;
 </details>
 
-<details><summary><code>.get_remainder()</code></summary>
+<details><summary><code>.GetRemainder()</code></summary>
 &nbsp;
 
 **Returns:** Real, the time remainding on the accumulator, as a fraction of a frame
