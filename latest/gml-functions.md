@@ -1,8 +1,4 @@
-# GML Functions
-
-&nbsp;
-
-### `IotaClock([identifier])` ***constructor***
+# `IotaClock([identifier])` ***constructor***
 
 **Constructor returns:** `IotaClock` struct
 
