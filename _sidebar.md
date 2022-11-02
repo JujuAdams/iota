@@ -1,7 +1,8 @@
 -   [Introduction](README)
+
+---
+
 -   [FAQ](faq)
 -   [Setting Up](setting-up)
--   [`IotaClock()`](iotaclock)
--   [`IotaIsClock()`](iotaisclock)
--   [`IotaIsAlarm()`](iotaisalarm)
--   [`IotaSkipInterpolation()`](iotaskipinterpolation)
+-   [GML Functions](gml-functions)
+-   [Config & Macros](configuration-and-macros)
