@@ -1,6 +1,6 @@
-<h1 align="center">iota 2.3.2</h1>
+<h1 align="center">iota 3.0.0</h1>
 
-<p align="center">Miniature delta time and time dilation library for GameMaker Studio 2.3.2 by <b>@jujuadams</b></p>
+<p align="center">Miniature delta time and time dilation library for GameMaker 2022 LTS by <b>@jujuadams</b></p>
 
 <p align="center"><a href="https://github.com/JujuAdams/iota/releases/">Download the .yymps</a></p>
 
