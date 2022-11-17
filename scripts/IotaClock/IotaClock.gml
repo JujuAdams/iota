@@ -30,6 +30,11 @@
 ///     Only one end method can be defined per instance/struct
 ///     End methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///   
+///   .AddCycleUserEvents([begin], [normal], [end])
+///     Adds three user events to be executed as begin/normal/end cycle methods. See above for more details
+///     Use <undefined> to indicate that a user event shouldn't be used
+///     This function is mutual exclusive with the method setters above and is provided for convenience
+///   
 ///   
 ///   
 ///   .VariableMomentary(variableName, resetValue, [scope])
@@ -197,6 +202,31 @@ function IotaClock(_identifier = undefined) constructor
     static AddEndMethod = function(_method)
     {
         return __AddMethodGeneric(_method, __IOTA_CHILD.__END_METHOD);
+    }
+    
+    static AddCycleUserEvents = function(_begin = undefined, _normal = undefined, _end = undefined)
+    {
+        //Scoping is weird
+        with(other)
+        {
+            if (_begin != undefined)
+            {
+                __iotaBeginUserEvent = _begin;
+                other.AddBeginMethod(function() { event_user(__iotaBeginUserEvent); });
+            }
+            
+            if (_normal != undefined)
+            {
+                __iotaCycleUserEvent = _normal;
+                other.AddCycleMethod(function() { event_user(__iotaCycleUserEvent); });
+            }
+            
+            if (_end != undefined)
+            {
+                __iotaEndUserEvent = _end;
+                other.AddEndMethod(function() { event_user(__iotaEndUserEvent); });
+            }
+        }
     }
     
     #endregion
