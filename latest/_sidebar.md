@@ -1,4 +1,5 @@
 -   [Introduction](README)
+-   [Alternatives](Alternatives)
 -   [FAQ](faq)
 -   [Setting Up](setting-up)
 -   [`IotaClock()`](iotaclock)
