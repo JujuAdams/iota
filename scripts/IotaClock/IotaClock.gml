@@ -968,7 +968,7 @@ function __IotaError()
         ++_i;
     }
     
-    show_error(_string + "\n ", true);
+    show_error(_string + "\n " + $"Version: {__IOTA_VERSION} "+ "\n", true);
 }
 
 #endregion
