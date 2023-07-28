@@ -1,3 +1,4 @@
+// Feather disable all
 /// Constructor that instantiates an iota clock
 /// 
 /// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .Tick() method is called. Defaults to <undefined>

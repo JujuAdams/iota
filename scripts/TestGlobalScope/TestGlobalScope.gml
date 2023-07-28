@@ -1,3 +1,4 @@
+// Feather disable all
 global.value = 0;
 
 global.someFunction = function()

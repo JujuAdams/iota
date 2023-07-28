@@ -1,3 +1,4 @@
+// Feather disable all
 function ClassTestPlayer(_x, _y, _clock) constructor
 {
     x = _x;

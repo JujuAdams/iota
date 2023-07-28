@@ -1,3 +1,4 @@
+// Feather disable all
 /// Returns <true> if the given value is an iota clock, as created by IotaClock()
 /// 
 /// @param value   The value to check

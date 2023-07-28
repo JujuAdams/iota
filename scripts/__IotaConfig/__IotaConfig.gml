@@ -1,3 +1,4 @@
+// Feather disable all
 //Whether to check if instances have been deactivated when cleaning up clock child data
 //This incurs a slight performance penalty but should be left set to <true>
 //If you do need the performance boost, make sure you're not using deactivation or things will break!

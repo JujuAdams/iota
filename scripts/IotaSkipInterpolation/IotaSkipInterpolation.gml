@@ -1,3 +1,4 @@
+// Feather disable all
 /// Disables interpolation for a given variable in a clock method for a single clock tick
 /// 
 /// This function can only be called in a clock method (either begin, normal, or end method)
