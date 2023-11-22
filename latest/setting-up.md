@@ -67,7 +67,7 @@ global.clock.VariableInterpolate("x", "iotaX");
 global.clock.VariableInterpolate("y", "iotaY");
 
 //Attach a basic movement method to the clock (this is unchanged from before)
-global.clock.add_cycle_method(function()
+global.clock.AddCycleMethod(function()
 {
     if (keyboard_check(vk_up)) y -= 4;
     if (keyboard_check(vk_down)) y += 4;
