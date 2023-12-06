@@ -56,10 +56,27 @@
 ///   
 ///   
 ///   .DefineInput(inputName, defaultValue)
+///     Adds a named input to the clock. This should be used to funnel user input into the clock.
+///     Defined inputs should be set using the .SetInput() method (see below) and can be read in
+///     a clock cycle method using IotaGetInput(). .DefineInput() should be used for "continuous"
+///     values such as those returned by keyboard_check() or gamepad_axis_value() or mouse_x.
 ///   
 ///   .DefineInputMomentary(inputName, defaultValue)
+///     See above for the general purpose for this method. .DefineInputMomentary() additionally
+///     marks an input as "momentary" which does two things:
+///     
+///     1) Momentary input values are reset to their defaults at the end of the first cycle per
+///        tick.
+///     2) Momentary input values are treated differently when setting values  using .SetInput().
+///        See below for more information.
 ///   
 ///   .SetInput(inputName, value)
+///     Set the value of an input defined using one of the two prior methods. For non-momentary
+///     "continuous" inputs, .SetInput() will simply set the value of the input as you'd expect.
+///     However, if an input has been defined as "momentary" then a value will only be set if it is
+///     different to the default value for the input. This means that, once set to a different
+///     value, an input cannot be reset to the default. This solves problems with dropped inputs
+///     when the application framerate is significantly higher than the clock update frequency.
 ///   
 ///   
 ///   
