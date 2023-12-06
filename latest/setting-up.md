@@ -143,6 +143,8 @@ global.clock.SetInput("right", keyboard_check(vk_right));
 global.clock.Tick();
 ```
 
+-----
+
 If we were to implement jumping or shooting or some other action that requires momentary input then we'd define the input explicitly as momentary with the appropriate function like so:
 
 ```GML
@@ -158,4 +160,8 @@ global.clock.DefineInput("right", false);
 global.clock.DefineInputMomentary("select", false);
 ```
 
-Momentary inputs have some extra logic in them that solves common problems with dropped inputs when the application is running at a significantly higher framerate than the iota clock.
+Momentary inputs have some extra logic in them that solves common problems with dropped inputs when the application is running at a significantly higher framerate than the iota clock. Once you've got momentary inputs defined correctly then you can set values for that input as you would normally e.g.
+
+```GML
+global.clock.SetInput("selected", keyboard_check_pressed(vk_space));
+```
