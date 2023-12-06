@@ -1104,7 +1104,7 @@ function __IotaTrace()
 
 function __IotaError()
 {
-    var _string = "iota:\n";
+    var _string = "iota " + string(__IOTA_VERSION) + ":\n";
     var _i = 0;
     repeat(argument_count)
     {
