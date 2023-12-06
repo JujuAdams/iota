@@ -34,7 +34,7 @@
 ///   .AddCycleUserEvents([begin], [normal], [end])
 ///     Adds three user events to be executed as begin/normal/end cycle methods. See above for more details
 ///     Use <undefined> to indicate that a user event shouldn't be used
-///     This function is mutual exclusive with the method setters above and is provided for convenience
+///     This function is mutually exclusive with the method setters above and is provided for convenience
 ///   
 ///   
 ///   
@@ -838,10 +838,10 @@ function IotaClock(_identifier = undefined) constructor
 
 #region (System)
 
-#macro __IOTA_VERSION  "3.0.0"
-#macro __IOTA_DATE     "2022-11-02"
+#macro __IOTA_VERSION  "3.1.0"
+#macro __IOTA_DATE     "2023-12-06"
 
-__IotaTrace("Welcome to iota by @jujuadams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
+__IotaTrace("Welcome to iota by Juju Adams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
 
 global.__iotaUniqueID     = 0;
 global.__iotaCurrentClock = undefined;
@@ -875,7 +875,6 @@ enum __IOTA_MOMENTARY_VARIABLE
     __DEFAULT_VALUE,
     __SIZE,
 }
-
 
 enum __IOTA_INTERPOLATED_VARIABLE
 {
