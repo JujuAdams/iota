@@ -13,6 +13,7 @@
     {"id":{"name":"oPlayer","path":"objects/oPlayer/oPlayer.yy",},"order":2,},
     {"id":{"name":"oPlayerInterpolated","path":"objects/oPlayerInterpolated/oPlayerInterpolated.yy",},"order":3,},
     {"id":{"name":"rInit","path":"rooms/rInit/rInit.yy",},"order":5,},
+    {"id":{"name":"IotaGetInput","path":"scripts/IotaGetInput/IotaGetInput.yy",},"order":5,},
     {"id":{"name":"__IotaConfig","path":"scripts/__IotaConfig/__IotaConfig.yy",},"order":0,},
     {"id":{"name":"oTestGlobalScope","path":"objects/oTestGlobalScope/oTestGlobalScope.yy",},"order":4,},
     {"id":{"name":"ClassTestPlayer","path":"scripts/ClassTestPlayer/ClassTestPlayer.yy",},"order":1,},
@@ -59,6 +60,6 @@
   ],
   "IncludedFiles": [],
   "MetaData": {
-    "IDEVersion": "2022.0.0.19",
+    "IDEVersion": "2022.0.2.51",
   },
 }

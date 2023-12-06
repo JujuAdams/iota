@@ -1,10 +1,10 @@
 if (!oController.clock.GetPause())
 {
-    leftState = keyboard_check(vk_left);
-    rightState = keyboard_check(vk_right);
-    
-    //The jump state needs to persist until the next iota tick
-    //We don't want to update it every frame because keyboard_check_pressed() is momentary
-    //If we *did* update it every frame and the game was running fast then we might miss inputs
-    if (keyboard_check_pressed(vk_space)) jumpPressedState = true;
+    //Set input values for the clock based on keyboard input. Note that if we're using a momentary value
+    //for an input (such as "jump" below) then the input should be defined on the clock using the
+    //.DefineInputMomentary() method. Input values can be picked up in an iota cycle by calling the
+    //IotaGetInput() function.
+    oController.clock.SetInput("left",  keyboard_check(vk_left));
+    oController.clock.SetInput("right", keyboard_check(vk_right));
+    oController.clock.SetInput("jump",  keyboard_check_pressed(vk_space));
 }

@@ -55,6 +55,14 @@
 ///   
 ///   
 ///   
+///   .DefineInput(inputName, defaultValue)
+///   
+///   .DefineInputMomentary(inputName, defaultValue)
+///   
+///   .SetInput(inputName, value)
+///   
+///   
+///   
 ///   .AddAlarm(milliseconds, method)
 ///     Adds a method to be executed after the given number of milliseconds have passed for this clock
 ///     The scope of the method is maintained. If the instance/struct attached to the method is removed, the method will not execute
@@ -91,6 +99,8 @@
 ///   .GetRemainder()
 ///     Returns the remainder on the accumulator
 
+
+
 function IotaClock(_identifier = undefined) constructor
 {
     __identifier      = _identifier
@@ -107,6 +117,12 @@ function IotaClock(_identifier = undefined) constructor
     __varMomentaryArray   = [];
     __varInterpolateArray = [];
     __alarmArray          = [];
+    
+    __inputNameArray      = [];
+    __inputMomentaryArray = [];
+    __inputMomentaryDict  = {};
+    __inputDefaultDict    = {};
+    __inputValueDict      = {};
     
     #region Tick
     
@@ -161,13 +177,18 @@ function IotaClock(_identifier = undefined) constructor
                 __execute_methods(__IOTA_CHILD.__CYCLE_METHOD);
                 
                 //Reset momentary variables after the first cycle
-                if (IOTA_CYCLE_INDEX == 0) __VariablesMomentaryReset();
+                if (IOTA_CYCLE_INDEX == 0)
+                {
+                    __VariablesMomentaryReset();
+                    __ResetInputMomentary();
+                }
                 
                 IOTA_CYCLE_INDEX++;
             }
             
             IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_CLOCK;
             __execute_methods(__IOTA_CHILD.__END_METHOD);
+            __ResetInputAll();
         }
         
         //Update our output interpolated variables
@@ -227,6 +248,82 @@ function IotaClock(_identifier = undefined) constructor
                 __iotaEndUserEvent = _end;
                 other.AddEndMethod(function() { event_user(__iotaEndUserEvent); });
             }
+        }
+    }
+    
+    #endregion
+    
+    #region Inputs
+    
+    static DefineInput = function(_inputName, _defaultValue)
+    {
+        if (variable_struct_exists(__inputDefaultDict, _inputName))
+        {
+            __IotaTrace("Warning! Input name \"", _inputName, "\" already defined");
+        }
+        else
+        {
+            array_push(__inputNameArray, _inputName);
+            __inputDefaultDict[$ _inputName] = _defaultValue;
+        }
+    }
+    
+    static DefineInputMomentary = function(_inputName, _defaultValue)
+    {
+        if (variable_struct_exists(__inputDefaultDict, _inputName))
+        {
+            __IotaTrace("Warning! Input name \"", _inputName, "\" already defined");
+        }
+        else
+        {
+            array_push(__inputNameArray, _inputName);
+            array_push(__inputMomentaryArray, _inputName);
+            __inputMomentaryDict[$ _inputName] = true;
+            __inputDefaultDict[$ _inputName] = _defaultValue;
+        }
+    }
+    
+    static SetInput = function(_inputName, _value)
+    {
+        if (__inputMomentaryDict[$ _inputName] ?? false)
+        {
+            //Special logic for momentary inputs - we cache values that are different to the default and don't
+            //let this method call reset momentary inputs to their default value
+            if (_value != __inputDefaultDict[$ _inputName])
+            {
+                __inputValueDict[$ _inputName] = _value;
+            }
+        }
+        else
+        {
+            __inputValueDict[$ _inputName] = _value;
+        }
+    }
+    
+    static __GetInput = function(_inputName)
+    {
+        return __inputValueDict[$ _inputName] ?? __inputDefaultDict[$ _inputName];
+    }
+    
+    static __ResetInputMomentary = function()
+    {
+        var _nameArray = __inputMomentaryArray;
+        var _i = 0;
+        repeat(array_length(_nameArray))
+        {
+            variable_struct_remove(__inputValueDict, _nameArray[_i]);
+            ++_i;
+        }
+    }
+    
+    static __ResetInputAll = function()
+    {
+        var _nameArray = __inputNameArray;
+        var _i = 0;
+        repeat(array_length(_nameArray))
+        {
+            variable_struct_remove(__inputValueDict, _nameArray[_i]);
+            ++_i;
         }
     }
     
