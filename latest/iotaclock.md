@@ -8,6 +8,7 @@
 
 iota's clocks are the time-keeping and code execution centre of the library. They are responsible for executing updates at the required frequency in realtime and, if so desired, will handle certain operations on variables. You can have as many clocks as you want, for example [The Swords of Ditto](https://store.steampowered.com/app/619780/The_Swords_of_Ditto_Mormos_Curse/) used three main clocks: one for gameplay, one for weather and particle effects, and one for the UI. Clocks can be paused individually and can update at different rates if so desired.
 
+
 &nbsp;
 
 The created struct has the following methods (click to expand):
@@ -82,6 +83,22 @@ Adds a function to be executed at the end of a tick, after all cycle methods. En
 |[scope]     |instance/struct|Scope to target when managing the variable. If no scope is specified, the instance/struct that called this function will be chosen as the scope|
 
 Adds a variable to be automatically reset at the end of the first cycle per tick. A momentary variable will only be reset if the clock needs to execute one or more cycles. The variable's scope is typically determined by who calls `.VariableMomentary()`, though for structs you may need to specify the optional `[scope]` argument.
+
+&nbsp;
+</details>
+
+<details><summary><code>.AddCycleUserEvents([begin], [normal], [end])</code></summary>
+&nbsp;
+
+**Returns:** N/A (`undefined`)
+
+|Name    |Datatype              |Purpose                                                                               |
+|--------|----------------------|--------------------------------------------------------------------------------------|
+|[begin] |integer or `undefined`|Index of the user event to use as a begin cycle method, or `undefined` to not execute |
+|[normal]|integer or `undefined`|Index of the user event to use as a normal cycle method, or `undefined` to not execute|
+|[end]   |integer or `undefined`|Index of the user event to use as a end cycle method, or `undefined` to not execute   |
+
+Adds three user events to be executed as begin/normal/end cycle methods. See previous method documentation for more details on what each type of cycle method does. Use `undefined` to indicate that a user event shouldn't be used. This function is mutually exclusive with the method setters above and is provided for convenience.
 
 &nbsp;
 </details>
