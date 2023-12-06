@@ -1,5 +1,6 @@
 // Feather disable all
-function ClassTestPlayer(_x, _y, _clock) constructor
+
+function ClassTestPlayer(_x, _y) constructor
 {
     x = _x;
     y = _y;
