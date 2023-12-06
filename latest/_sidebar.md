@@ -6,3 +6,4 @@
 -   [`IotaIsClock()`](iotaisclock)
 -   [`IotaIsAlarm()`](iotaisalarm)
 -   [`IotaSkipInterpolation()`](iotaskipinterpolation)
+-   [`IotaGetInput()`](iotagetinput)
