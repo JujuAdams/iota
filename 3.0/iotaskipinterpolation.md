@@ -1,4 +1,4 @@
-# `IotaSkipInterpolation(outName, [scope])`
+# `IotaSkipInterpolation(_outName, [scope])`
 
 _Returns:_ N/A (`undefined`)
 
