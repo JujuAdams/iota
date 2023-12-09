@@ -8,25 +8,25 @@
 /// iota clocks have the following public methods:
 /// 
 ///   .Tick()
-///     Updates the clock and executes methods. This methods returns how many clock cycles were executed
+///     Updates the clock and executes methods. This method returns how many clock cycles were executed
 ///     A clock will execute enough cycles to match its realtime update frequency
 ///     This means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick
 ///   
 ///   
 ///   
-///   .AddCycleMethod(method)
-///     Adds a method to be executed for each cycle
-///     The scope of the method passed into this function will persist
-///     Only one cycle method can be defined per instance/struct
-///   
-///   .AddBeginMethod(method)
-///     Adds a method to be executed at the start of a tick, before any cycle methods
+///   .AddBeginCycleMethod(method)
+///     Adds a method to be executed at the start of a cycle, before normal/end cycle methods and before alarms are ticked down
 ///     The scope of the method passed into this function will persist
 ///     Only one begin method can be defined per instance/struct
 ///     Begin methods will *not* be executed if the clock doesn't need to execute any cycles at all
 ///   
-///   .AddEndMethod(method)
-///     Adds a method to be executed at the end of a tick, after all cycle methods
+///   .AddCycleMethod(method)
+///     Adds a method to be executed for each cycle after the begin cycle method and after alarms are ticked down
+///     The scope of the method passed into this function will persist
+///     Only one cycle method can be defined per instance/struct
+///   
+///   .AddEndCycleMethod(method)
+///     Adds a method to be executed at the end of a cycke, after all cycle methods and alarms
 ///     The scope of the method passed into this function will persist
 ///     Only one end method can be defined per instance/struct
 ///     End methods will *not* be executed if the clock doesn't need to execute any cycles at all
@@ -161,7 +161,6 @@ function IotaClock(_identifier = undefined) constructor
         {
             IOTA_SECONDS_PER_CYCLE = __secondsPerCycle;
             IOTA_CYCLE_INDEX = -1;
-            __execute_methods(__IOTA_CHILD.__BEGIN_METHOD);
             
             //Execute cycles one at a time
             //Note that we're processing all methods for a cycle, then move onto the next cycle
@@ -171,6 +170,8 @@ function IotaClock(_identifier = undefined) constructor
             {
                 //Capture interpolated variable state before the final cycle
                 if (IOTA_CYCLE_INDEX == IOTA_CYCLES_FOR_CLOCK-1) __VariablesInterpolateRefresh();
+                
+                __execute_methods(__IOTA_CHILD.__BEGIN_CYCLE_METHOD);
                 
                 var _i = 0;
                 repeat(array_length(__alarmArray))
@@ -185,7 +186,8 @@ function IotaClock(_identifier = undefined) constructor
                     }
                 }
                 
-                __execute_methods(__IOTA_CHILD.__CYCLE_METHOD);
+                __execute_methods(__IOTA_CHILD.__NORMAL_CYCLE_METHOD);
+                __execute_methods(__IOTA_CHILD.__END_CYCLE_METHOD);
                 
                 //Reset momentary input after the first cycle
                 if (IOTA_CYCLE_INDEX == 0)
@@ -197,7 +199,6 @@ function IotaClock(_identifier = undefined) constructor
             }
             
             IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_CLOCK;
-            __execute_methods(__IOTA_CHILD.__END_METHOD);
             __ResetInputAll();
         }
         
@@ -221,19 +222,19 @@ function IotaClock(_identifier = undefined) constructor
     
     #region Methods Adders
     
-    static AddBeginMethod = function(_method)
+    static AddBeginCycleMethod = function(_method)
     {
-        return __AddMethodGeneric(_method, __IOTA_CHILD.__BEGIN_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__BEGIN_CYCLE_METHOD);
     }
     
     static AddCycleMethod = function(_method)
     {
-        return __AddMethodGeneric(_method, __IOTA_CHILD.__CYCLE_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__NORMAL_CYCLE_METHOD);
     }
     
-    static AddEndMethod = function(_method)
+    static AddEndCycleMethod = function(_method)
     {
-        return __AddMethodGeneric(_method, __IOTA_CHILD.__END_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__END_CYCLE_METHOD);
     }
     
     static AddCycleUserEvents = function(_begin = undefined, _normal = undefined, _end = undefined)
@@ -244,7 +245,7 @@ function IotaClock(_identifier = undefined) constructor
             if (_begin != undefined)
             {
                 __iotaBeginUserEvent = _begin;
-                other.AddBeginMethod(function() { event_user(__iotaBeginUserEvent); });
+                other.AddBeginCycleMethod(function() { event_user(__iotaBeginUserEvent); });
             }
             
             if (_normal != undefined)
@@ -256,7 +257,7 @@ function IotaClock(_identifier = undefined) constructor
             if (_end != undefined)
             {
                 __iotaEndUserEvent = _end;
-                other.AddEndMethod(function() { event_user(__iotaEndUserEvent); });
+                other.AddEndCycleMethod(function() { event_user(__iotaEndUserEvent); });
             }
         }
     }
@@ -466,9 +467,9 @@ function IotaClock(_identifier = undefined) constructor
     {
         switch(_method_type)
         {
-            case __IOTA_CHILD.__BEGIN_METHOD: var _array = __beginMethodArray; break;
-            case __IOTA_CHILD.__CYCLE_METHOD: var _array = __cycleMethodArray; break;
-            case __IOTA_CHILD.__END_METHOD:   var _array = __endMethodArray;   break;
+            case __IOTA_CHILD.__BEGIN_CYCLE_METHOD: var _array = __beginMethodArray; break;
+            case __IOTA_CHILD.__NORMAL_CYCLE_METHOD: var _array = __cycleMethodArray; break;
+            case __IOTA_CHILD.__END_CYCLE_METHOD:   var _array = __endMethodArray;   break;
         }
         
         var _i = 0;
@@ -540,9 +541,9 @@ function IotaClock(_identifier = undefined) constructor
         
         switch(_method_type)
         {
-            case __IOTA_CHILD.__BEGIN_METHOD: var _array = __beginMethodArray; break;
-            case __IOTA_CHILD.__CYCLE_METHOD: var _array = __cycleMethodArray; break;
-            case __IOTA_CHILD.__END_METHOD:   var _array = __endMethodArray;   break;
+            case __IOTA_CHILD.__BEGIN_CYCLE_METHOD: var _array = __beginMethodArray; break;
+            case __IOTA_CHILD.__NORMAL_CYCLE_METHOD: var _array = __cycleMethodArray; break;
+            case __IOTA_CHILD.__END_CYCLE_METHOD:   var _array = __endMethodArray;   break;
         }
         
         var _childData = __GetChildData(_scope);
@@ -788,9 +789,9 @@ enum __IOTA_CHILD
 {
     __IOTA_ID,
     __SCOPE,
-    __BEGIN_METHOD,
-    __CYCLE_METHOD,
-    __END_METHOD,
+    __BEGIN_CYCLE_METHOD,
+    __NORMAL_CYCLE_METHOD,
+    __END_CYCLE_METHOD,
     __DEAD,
     __VARIABLES_INTERPOLATE,
     __SIZE
