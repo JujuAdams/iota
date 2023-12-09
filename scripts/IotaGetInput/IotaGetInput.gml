@@ -9,7 +9,9 @@
 
 function IotaGetInput(_inputName)
 {
-    if (global.__iotaCurrentClock == undefined) __IotaError("Cannot use IotaGetInput() outside of a clock method");
+    static _iota = __Iota();
     
-    return global.__iotaCurrentClock.__GetInput(_inputName);
+    if (_iota.__currentClock == undefined) __IotaError("Cannot use IotaGetInput() outside of a clock method");
+    
+    return _iota.__currentClock.__GetInput(_inputName);
 }

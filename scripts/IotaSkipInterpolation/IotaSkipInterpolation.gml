@@ -1,4 +1,5 @@
 // Feather disable all
+
 /// Disables interpolation for a given variable in a clock method for a single clock tick
 /// 
 /// This function can only be called in a clock method (either begin, normal, or end method)
@@ -11,10 +12,12 @@
 
 function IotaSkipInterpolation()
 {
-    if (global.__iotaCurrentClock == undefined) __IotaError("Cannot use IotaSkipInterpolation() outside of a clock method");
+    static _iota = __Iota();
+    
+    if (_iota.__currentClock == undefined) __IotaError("Cannot use IotaSkipInterpolation() outside of a clock method");
     
     var _outName = argument[0];
     var _scope    = ((argument_count > 1) && (argument[1] != undefined))? argument[1] : self;
     
-    global.__iotaCurrentClock.__VariableSkipInterpolation(_outName, _scope);
+    _iota.__currentClock.__VariableSkipInterpolation(_outName, _scope);
 }

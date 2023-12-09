@@ -3,21 +3,6 @@
 #macro __IOTA_VERSION  "3.1.0"
 #macro __IOTA_DATE     "2023-12-06"
 
-__IotaTrace("Welcome to iota by Juju Adams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
-
-global.__iotaUniqueID     = 0;
-global.__iotaCurrentClock = undefined;
-
-#macro IOTA_CURRENT_CLOCK     global.__iotaCurrentIdentifier
-#macro IOTA_TICKS_FOR_CLOCK   global.__iotaTotalTicks
-#macro IOTA_TICK_INDEX        global.__iotaTickIndex
-#macro IOTA_SECONDS_PER_TICK  global.__iotaSecondsPerTick  
-
-IOTA_CURRENT_CLOCK    = undefined;
-IOTA_TICKS_FOR_CLOCK  = undefined;
-IOTA_TICK_INDEX       = undefined;
-IOTA_SECONDS_PER_TICK = undefined;
-
 enum __IOTA_CHILD
 {
     __IOTA_ID,
@@ -37,4 +22,31 @@ enum __IOTA_INTERPOLATED_VARIABLE
     __PREV_VALUE,
     __IS_ANGLE,
     __SIZE,
+}
+ 
+#macro IOTA_CURRENT_CLOCK     __Iota().__currentClockName
+#macro IOTA_TICKS_FOR_CLOCK   __Iota().__totalTicks
+#macro IOTA_TICK_INDEX        __Iota().__tickIndex
+#macro IOTA_SECONDS_PER_TICK  __Iota().__secondsPerTick  
+
+function __Iota()
+{
+    static _struct = undefined;
+    if (_struct != undefined) return _struct;
+    
+    __IotaTrace("Welcome to iota by Juju Adams! This is version " + __IOTA_VERSION + ", " + __IOTA_DATE);
+    
+    _struct = {};
+    with(_struct)
+    {
+        __uniqueID     = 0;
+        __currentClock = undefined;
+        
+        __currentClockName = undefined;
+        __totalTicks       = undefined;
+        __tickIndex        = undefined;
+        __secondsPerTick   = undefined;
+    }
+    
+    return _struct;
 }

@@ -1,4 +1,5 @@
 // Feather disable all
+
 /// Constructor that instantiates an iota clock
 /// 
 /// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .Update() method is called. Defaults to <undefined>
@@ -116,6 +117,8 @@
 
 function IotaClock(_identifier = undefined) constructor
 {
+    static _iota = __Iota();
+    
     __identifier      = _identifier
     __updateFrequency = game_get_speed(gamespeed_fps);
     __paused          = false;
@@ -141,7 +144,7 @@ function IotaClock(_identifier = undefined) constructor
     static Update = function()
     {
         IOTA_CURRENT_CLOCK = __identifier;
-        global.__iotaCurrentClock = self;
+        _iota.__currentClock = self;
         
         //Get the clamped delta time value for this GameMaker frame
         //We clamp the bottom end to ensure that games still chug along even if the device is really grinding
@@ -214,7 +217,7 @@ function IotaClock(_identifier = undefined) constructor
         IOTA_TICK_INDEX       = undefined;
         IOTA_SECONDS_PER_TICK = undefined;
         
-        global.__iotaCurrentClock = undefined;
+        _iota.__currentClock = undefined;
         
         return _ticks;
     }

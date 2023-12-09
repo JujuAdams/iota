@@ -7,6 +7,7 @@
 ///     0 = Deactivated instance
 ///     1 = Alive instance
 ///     2 = Alive struct
+
 function __IotaScopeExists(_scope, _expectedChildID) //Does do deactivation check
 {
     if (is_numeric(_scope))
