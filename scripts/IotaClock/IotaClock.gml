@@ -38,11 +38,6 @@
 ///   
 ///   
 ///   
-///   .VariableMomentary(variableName, resetValue, [scope])
-///     Adds a variable to be automatically reset at the end of the first cycle per tick
-///     A momentary variable will only be reset if the clock needs to execute one or more cycles
-///     The variable's scope is typically determined by who calls .VariableMomentary(), though for structs you may need to specify the optional [scope] argument
-///   
 ///   .VariableInterpolate(inputVariableName, outputVariableName, [scope])
 ///     Adds a variable to be smoothly interpolated between iota ticks. The interpolated value is passed to the given output variable name
 ///     Interpolated variables are always updated every time .Tick() is called, even if the clock does not need to execute any cycles
@@ -131,7 +126,6 @@ function IotaClock(_identifier = undefined) constructor
     __beginMethodArray    = [];
     __cycleMethodArray    = [];
     __endMethodArray      = [];
-    __varMomentaryArray   = [];
     __varInterpolateArray = [];
     __alarmArray          = [];
     
@@ -193,10 +187,9 @@ function IotaClock(_identifier = undefined) constructor
                 
                 __execute_methods(__IOTA_CHILD.__CYCLE_METHOD);
                 
-                //Reset momentary variables after the first cycle
+                //Reset momentary input after the first cycle
                 if (IOTA_CYCLE_INDEX == 0)
                 {
-                    __VariablesMomentaryReset();
                     __ResetInputMomentary();
                 }
                 
@@ -347,39 +340,6 @@ function IotaClock(_identifier = undefined) constructor
     #endregion
     
     #region Variables
-    
-    static VariableMomentary = function(_name, _reset, _scope = other)
-    {
-        var _childData = __GetChildData(_scope);
-        
-        //Catch weird errors due to scoping
-        if (!is_array(_childData))
-        {
-            __IotaError("Scope could not be determined (data type=", typeof(_scope), ")");
-        }
-        
-        var _array = _childData[__IOTA_CHILD.__VARIABLES_MOMENTARY];
-        if (_array == undefined)
-        {
-            _array = [];
-            _childData[@ __IOTA_CHILD.__VARIABLES_MOMENTARY] = _array;
-            array_push(__varMomentaryArray, _childData);
-        }
-        
-        var _i = 0;
-        repeat(array_length(_array) div __IOTA_MOMENTARY_VARIABLE.__SIZE)
-        {
-            if (_array[_i] == _name)
-            {
-                //This variable already exists
-                return undefined;
-            }
-            
-            _i += __IOTA_MOMENTARY_VARIABLE.__SIZE;
-        }
-        
-        array_push(_array, _name, _reset);
-    }
     
     static VariableInterpolate = function(_inName, _outName, _scope = other)
     {
@@ -687,55 +647,6 @@ function IotaClock(_identifier = undefined) constructor
         return _childData;
     }
     
-    static __VariablesMomentaryReset = function()
-    {
-        var _array = __varMomentaryArray;
-        
-        var _i = 0;
-        repeat(array_length(_array))
-        {
-            var _childData = _array[_i];
-            
-            //If another process found that this child no longer exists, remove it from this array too
-            if (_childData[__IOTA_CHILD.__DEAD])
-            {
-                array_delete(_array, _i, 1);
-                continue;
-            }
-            
-            var _scope = _childData[__IOTA_CHILD.__SCOPE];
-            switch(__IotaScopeExists(_scope, _childData[__IOTA_CHILD.__IOTA_ID]))
-            {
-                case 1: //Alive instance
-                case 2: //Alive struct
-                    //If our scope isn't a real then it's a struct, so jump into the struct itself
-                    if (!is_numeric(_scope)) _scope = _scope.ref;
-                    
-                    var _variables = _childData[__IOTA_CHILD.__VARIABLES_MOMENTARY];
-                    var _j = 0;
-                    repeat(array_length(_variables) div __IOTA_MOMENTARY_VARIABLE.__SIZE)
-                    {
-                        variable_instance_set(_scope, _variables[_j + __IOTA_MOMENTARY_VARIABLE.__NAME], _variables[_j + __IOTA_MOMENTARY_VARIABLE.__DEFAULT_VALUE]);
-                        _j += __IOTA_MOMENTARY_VARIABLE.__SIZE;
-                    }
-                break;
-                
-                case -1: //Dead instance
-                case -2: //Dead struct
-                case -3: //Instance has different child ID
-                    array_delete(_array, _i, 1);
-                    __MarkChildAsDead(_childData);
-                    continue;
-                break;
-                
-                case 0: //Deactivated instance
-                break;
-            }
-            
-            ++_i;
-        }
-    }
-    
     static __VariablesInterpolateRefresh = function()
     {
         var _array = __varInterpolateArray;
@@ -881,16 +792,8 @@ enum __IOTA_CHILD
     __CYCLE_METHOD,
     __END_METHOD,
     __DEAD,
-    __VARIABLES_MOMENTARY,
     __VARIABLES_INTERPOLATE,
     __SIZE
-}
-
-enum __IOTA_MOMENTARY_VARIABLE
-{
-    __NAME,
-    __DEFAULT_VALUE,
-    __SIZE,
 }
 
 enum __IOTA_INTERPOLATED_VARIABLE
