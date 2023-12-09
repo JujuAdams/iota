@@ -1,4 +1,4 @@
-clock.Tick();
+clock.Update();
 
 //Cycle through iota target framerates
 if (keyboard_check_pressed(ord("I")))

@@ -3,7 +3,7 @@ velocityY = 0;
 
 
 
-oController.clock.AddCycleMethod(function()
+oController.clock.AddTickMethod(function()
 {
     //Move left/right
     if (IotaGetInput("left" )) velocityX -= 2;

@@ -14,6 +14,6 @@
 
 //These three macros are also available for use inside iota methods
 //Outside of iota methods they will return <undefined>
-//    IOTA_CURRENT_CLOCK    = Identifier for the clock that's currently being handled (0-indexed)
-//    IOTA_CYCLES_FOR_CLOCK = Total number of cycles that will be processed this frame for the current clock
-//    IOTA_CYCLE_INDEX      = Current cycle for the current clock (0-indexed). This will be -1 for begin methods and =IOTA_CYCLES_FOR_CLOCK for end methods
+//    IOTA_CURRENT_CLOCK   = Identifier for the clock that's currently being handled (0-indexed)
+//    IOTA_TICKS_FOR_CLOCK = Total number of ticks that will be processed this frame for the current clock
+//    IOTA_TICK_INDEX      = Current tick for the current clock (0-indexed)

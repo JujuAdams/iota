@@ -1,3 +1,3 @@
-/// @description End Cycle
+/// @description End Tick
 
 x -= 20;

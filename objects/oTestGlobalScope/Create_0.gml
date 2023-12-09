@@ -1,1 +1,1 @@
-oController.clock.AddCycleMethod(someOtherFunction);
+oController.clock.AddTickMethod(someOtherFunction);

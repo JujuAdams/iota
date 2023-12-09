@@ -1,1 +1,1 @@
-oController.clock.AddCycleUserEvents(0, 1, 2);
+oController.clock.AddTickUserEvents(0, 1, 2);

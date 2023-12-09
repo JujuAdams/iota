@@ -1,5 +1,5 @@
 // Feather disable all
-/// Returns <true> if the given value is an iota alarm, as returned by .AddAlarm() or .AddAlarmCycles()
+/// Returns <true> if the given value is an iota alarm, as returned by .AddAlarm() or .AddAlarmTicks()
 /// 
 /// @param value   The value to check
 

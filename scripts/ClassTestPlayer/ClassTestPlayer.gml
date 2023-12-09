@@ -8,7 +8,7 @@ function ClassTestPlayer(_x, _y) constructor
     oController.clock.VariableInterpolate("x", "iotaX", self);
     oController.clock.VariableInterpolate("y", "iotaY", self);
     
-    oController.clock.AddCycleMethod(function()
+    oController.clock.AddTickMethod(function()
     {
         if (keyboard_check(vk_up)) y -= 4;
         if (keyboard_check(vk_down)) y += 4;

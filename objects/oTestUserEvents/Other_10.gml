@@ -1,3 +1,3 @@
-/// @description Begin Cycle
+/// @description Begin Tick
 
 x += 20;

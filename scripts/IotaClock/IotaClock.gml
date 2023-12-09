@@ -1,38 +1,39 @@
 // Feather disable all
 /// Constructor that instantiates an iota clock
 /// 
-/// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .Tick() method is called. Defaults to <undefined>
+/// @param [identifier]   Unique name for this clock. IOTA_CURRENT_CLOCK will be set to this value when the clock's .Update() method is called. Defaults to <undefined>
 /// 
 /// 
 /// 
 /// iota clocks have the following public methods:
 /// 
-///   .Tick()
-///     Updates the clock and executes methods. This method returns how many clock cycles were executed
-///     A clock will execute enough cycles to match its realtime update frequency
-///     This means a clock may execute zero cycles per tick, or sometimes multiple cycles per tick
+///   .Update()
+///     Updates the clock and executes methods. This method returns how many clock ticks were executed
+///     A clock will execute enough ticks to match its realtime update frequency
+///     This means a clock may execute zero ticks, or sometimes multiple ticks
 ///   
 ///   
 ///   
-///   .AddBeginCycleMethod(method)
-///     Adds a method to be executed at the start of a cycle, before normal/end cycle methods and before alarms are ticked down
+///   .AddBeginTickMethod(method)
+///     Adds a method to be executed at the start of a tick, before normal/end tick methods and before alarms are ticked down
 ///     The scope of the method passed into this function will persist
 ///     Only one begin method can be defined per instance/struct
-///     Begin methods will *not* be executed if the clock doesn't need to execute any cycles at all
+///     Begin methods will *not* be executed if the clock doesn't need to execute any ticks at all
 ///   
-///   .AddCycleMethod(method)
-///     Adds a method to be executed for each cycle after the begin cycle method and after alarms are ticked down
+///   .AddTickMethod(method)
+///     Adds a method to be executed for each tick after the begin tick method and after alarms are ticked down
 ///     The scope of the method passed into this function will persist
-///     Only one cycle method can be defined per instance/struct
+///     Only one tick method can be defined per instance/struct
+///     Tick methods will *not* be executed if the clock doesn't need to execute any ticks at all
 ///   
-///   .AddEndCycleMethod(method)
-///     Adds a method to be executed at the end of a cycke, after all cycle methods and alarms
+///   .AddEndTickMethod(method)
+///     Adds a method to be executed at the end of a cycke, after all tick methods and alarms
 ///     The scope of the method passed into this function will persist
 ///     Only one end method can be defined per instance/struct
-///     End methods will *not* be executed if the clock doesn't need to execute any cycles at all
+///     End methods will *not* be executed if the clock doesn't need to execute any ticks at all
 ///   
-///   .AddCycleUserEvents([begin], [normal], [end])
-///     Adds three user events to be executed as begin/normal/end cycle methods. See above for more details
+///   .AddTickUserEvents([begin], [normal], [end])
+///     Adds three user events to be executed as begin/normal/end tick methods. See above for more details
 ///     Use <undefined> to indicate that a user event shouldn't be used
 ///     This function is mutually exclusive with the method setters above and is provided for convenience
 ///   
@@ -40,7 +41,7 @@
 ///   
 ///   .VariableInterpolate(inputVariableName, outputVariableName, [scope])
 ///     Adds a variable to be smoothly interpolated between iota ticks. The interpolated value is passed to the given output variable name
-///     Interpolated variables are always updated every time .Tick() is called, even if the clock does not need to execute any cycles
+///     Interpolated variables are always updated every time .Update() is called, even if the clock does not need to execute any ticks
 ///     The variables' scope is typically determined by who calls .VariableInterpolate(), though for structs you may need to specify the optional [scope] argument
 ///       N.B. Interpolated variables will always be (at most) a frame behind the actual value of the input variable
 ///            Most of this time this makes no difference but it's not ideal if you're looking for frame-perfect gameplay
@@ -53,16 +54,16 @@
 ///   .DefineInput(inputName, defaultValue)
 ///     Adds a named input to the clock. This should be used to funnel user input into the clock.
 ///     Defined inputs should be set using the .SetInput() method (see below) and can be read in
-///     a clock cycle method using IotaGetInput(). .DefineInput() should be used for "continuous"
+///     a clock tick method using IotaGetInput(). .DefineInput() should be used for "continuous"
 ///     values such as those returned by keyboard_check() or gamepad_axis_value() or mouse_x.
 ///   
 ///   .DefineInputMomentary(inputName, defaultValue)
 ///     See above for the general purpose for this method. .DefineInputMomentary() additionally
 ///     marks an input as "momentary" which does two things:
 ///     
-///     1) Momentary input values are reset to their defaults at the end of the first cycle per
-///        tick.
-///     2) Momentary input values are treated differently when setting values  using .SetInput().
+///     1) Momentary input values are reset to their defaults at the end of the first tick per
+///        clock update.
+///     2) Momentary input values are treated differently when setting values using .SetInput().
 ///        See below for more information.
 ///   
 ///   .SetInput(inputName, value)
@@ -80,8 +81,8 @@
 ///     The scope of the method is maintained. If the instance/struct attached to the method is removed, the method will not execute
 ///     iota alarms respect time dilation and pausing - N.B. Changing a clock's update frequency will cause alarms to desynchronise
 ///   
-///   .AddAlarmCycles(cycles, method)
-///     Adds a method to be executed after the given number of cycles have passed for this clock
+///   .AddAlarmTicks(ticks, method)
+///     Adds a method to be executed after the given number of ticks have passed for this clock
 ///     The scope of the method is maintained. If the instance/struct attached to the method is removed, the method will not execute
 ///     iota alarms respect time dilation and pausing - N.B. Changing a clock's update frequency will cause alarms to desynchronise
 ///   
@@ -119,12 +120,12 @@ function IotaClock(_identifier = undefined) constructor
     __updateFrequency = game_get_speed(gamespeed_fps);
     __paused          = false;
     __dilation        = 1.0;
-    __secondsPerCycle = 1 / (__dilation*__updateFrequency);
+    __secondsPerTick = 1 / (__dilation*__updateFrequency);
     __accumulator     = 0;
     
     __childrenStruct      = {};
     __beginMethodArray    = [];
-    __cycleMethodArray    = [];
+    __normalMethodArray   = [];
     __endMethodArray      = [];
     __varInterpolateArray = [];
     __alarmArray          = [];
@@ -135,9 +136,9 @@ function IotaClock(_identifier = undefined) constructor
     __inputDefaultDict    = {};
     __inputValueDict      = {};
     
-    #region Tick
+    #region Update
     
-    static Tick = function()
+    static Update = function()
     {
         IOTA_CURRENT_CLOCK = __identifier;
         global.__iotaCurrentClock = self;
@@ -146,32 +147,32 @@ function IotaClock(_identifier = undefined) constructor
         //We clamp the bottom end to ensure that games still chug along even if the device is really grinding
         var _delta = min(1/IOTA_MINIMUM_FRAMERATE, delta_time/1000000);
         
-        //Start off assuming this clock isn't going to want to process any cycles whatsoever
-        IOTA_CYCLES_FOR_CLOCK = 0;
+        //Start off assuming this clock isn't going to want to process any ticks whatsoever
+        IOTA_TICKS_FOR_CLOCK = 0;
         
-        //If we're not paused, figure out how many full cycles this clock requires based the accumulator and the clock's framerate
+        //If we're not paused, figure out how many full ticks this clock requires based the accumulator and the clock's framerate
         if (!__paused && (__dilation > 0))
         {
             __accumulator += _delta;
-            IOTA_CYCLES_FOR_CLOCK = floor(__accumulator/__secondsPerCycle);
-            __accumulator -= IOTA_CYCLES_FOR_CLOCK*__secondsPerCycle;
+            IOTA_TICKS_FOR_CLOCK = floor(__accumulator/__secondsPerTick);
+            __accumulator -= IOTA_TICKS_FOR_CLOCK*__secondsPerTick;
         }
         
-        if (IOTA_CYCLES_FOR_CLOCK > 0)
+        if (IOTA_TICKS_FOR_CLOCK > 0)
         {
-            IOTA_SECONDS_PER_CYCLE = __secondsPerCycle;
-            IOTA_CYCLE_INDEX = -1;
+            IOTA_SECONDS_PER_TICK = __secondsPerTick;
+            IOTA_TICK_INDEX = -1;
             
-            //Execute cycles one at a time
-            //Note that we're processing all methods for a cycle, then move onto the next cycle
+            //Execute ticks one at a time
+            //Note that we're processing all methods for a tick, then move onto the next tick
             //This ensures instances doesn't get out of step with each other
-            IOTA_CYCLE_INDEX = 0;
-            repeat(IOTA_CYCLES_FOR_CLOCK)
+            IOTA_TICK_INDEX = 0;
+            repeat(IOTA_TICKS_FOR_CLOCK)
             {
-                //Capture interpolated variable state before the final cycle
-                if (IOTA_CYCLE_INDEX == IOTA_CYCLES_FOR_CLOCK-1) __VariablesInterpolateRefresh();
+                //Capture interpolated variable state before the final tick
+                if (IOTA_TICK_INDEX == IOTA_TICKS_FOR_CLOCK-1) __VariablesInterpolateRefresh();
                 
-                __execute_methods(__IOTA_CHILD.__BEGIN_CYCLE_METHOD);
+                __execute_methods(__IOTA_CHILD.__BEGIN_METHOD);
                 
                 var _i = 0;
                 repeat(array_length(__alarmArray))
@@ -186,58 +187,58 @@ function IotaClock(_identifier = undefined) constructor
                     }
                 }
                 
-                __execute_methods(__IOTA_CHILD.__NORMAL_CYCLE_METHOD);
-                __execute_methods(__IOTA_CHILD.__END_CYCLE_METHOD);
+                __execute_methods(__IOTA_CHILD.__NORMAL_METHOD);
+                __execute_methods(__IOTA_CHILD.__END_METHOD);
                 
-                //Reset momentary input after the first cycle
-                if (IOTA_CYCLE_INDEX == 0)
+                //Reset momentary input after the first tick
+                if (IOTA_TICK_INDEX == 0)
                 {
                     __ResetInputMomentary();
                 }
                 
-                IOTA_CYCLE_INDEX++;
+                IOTA_TICK_INDEX++;
             }
             
-            IOTA_CYCLE_INDEX = IOTA_CYCLES_FOR_CLOCK;
+            IOTA_TICK_INDEX = IOTA_TICKS_FOR_CLOCK;
             __ResetInputAll();
         }
         
         //Update our output interpolated variables
         if (!__paused && (__dilation > 0)) __VariablesInterpolateUpdate();
         
-        var _cycles = IOTA_CYCLES_FOR_CLOCK;
+        var _ticks = IOTA_TICKS_FOR_CLOCK;
         
         //Make sure to reset these macros so they can't be accessed outside of iota methods
-        IOTA_CURRENT_CLOCK     = undefined;
-        IOTA_CYCLES_FOR_CLOCK  = undefined;
-        IOTA_CYCLE_INDEX       = undefined;
-        IOTA_SECONDS_PER_CYCLE = undefined;
+        IOTA_CURRENT_CLOCK    = undefined;
+        IOTA_TICKS_FOR_CLOCK  = undefined;
+        IOTA_TICK_INDEX       = undefined;
+        IOTA_SECONDS_PER_TICK = undefined;
         
         global.__iotaCurrentClock = undefined;
         
-        return _cycles;
+        return _ticks;
     }
     
     #endregion
     
     #region Methods Adders
     
-    static AddBeginCycleMethod = function(_method)
+    static AddBeginTickMethod = function(_method)
     {
-        return __AddMethodGeneric(_method, __IOTA_CHILD.__BEGIN_CYCLE_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__BEGIN_METHOD);
     }
     
-    static AddCycleMethod = function(_method)
+    static AddTickMethod = function(_method)
     {
-        return __AddMethodGeneric(_method, __IOTA_CHILD.__NORMAL_CYCLE_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__NORMAL_METHOD);
     }
     
-    static AddEndCycleMethod = function(_method)
+    static AddEndTickMethod = function(_method)
     {
-        return __AddMethodGeneric(_method, __IOTA_CHILD.__END_CYCLE_METHOD);
+        return __AddMethodGeneric(_method, __IOTA_CHILD.__END_METHOD);
     }
     
-    static AddCycleUserEvents = function(_begin = undefined, _normal = undefined, _end = undefined)
+    static AddTickUserEvents = function(_begin = undefined, _normal = undefined, _end = undefined)
     {
         //Scoping is weird
         with(other)
@@ -245,19 +246,19 @@ function IotaClock(_identifier = undefined) constructor
             if (_begin != undefined)
             {
                 __iotaBeginUserEvent = _begin;
-                other.AddBeginCycleMethod(function() { event_user(__iotaBeginUserEvent); });
+                other.AddBeginTickMethod(function() { event_user(__iotaBeginUserEvent); });
             }
             
             if (_normal != undefined)
             {
-                __iotaCycleUserEvent = _normal;
-                other.AddCycleMethod(function() { event_user(__iotaCycleUserEvent); });
+                __iotaTickUserEvent = _normal;
+                other.AddTickMethod(function() { event_user(__iotaTickUserEvent); });
             }
             
             if (_end != undefined)
             {
                 __iotaEndUserEvent = _end;
-                other.AddEndCycleMethod(function() { event_user(__iotaEndUserEvent); });
+                other.AddEndTickMethod(function() { event_user(__iotaEndUserEvent); });
             }
         }
     }
@@ -413,9 +414,9 @@ function IotaClock(_identifier = undefined) constructor
         return new __IotaClassAlarm(self, (_time / 1000) * GetUpdateFrequency(), _method);
     }
     
-    static AddAlarmCycles = function(_cycles, _method)
+    static AddAlarmTicks = function(_ticks, _method)
     {
-        return new __IotaClassAlarm(self, _cycles, _method);
+        return new __IotaClassAlarm(self, _ticks, _method);
     }
     
     #endregion
@@ -435,7 +436,7 @@ function IotaClock(_identifier = undefined) constructor
     static SetUpdateFrequency = function(_frequency)
     {
         __updateFrequency = _frequency;
-        __secondsPerCycle = 1 / (__dilation*__updateFrequency);
+        __secondsPerTick = 1 / (__dilation*__updateFrequency);
     }
     
     static GetUpdateFrequency = function()
@@ -446,7 +447,7 @@ function IotaClock(_identifier = undefined) constructor
     static SetTimeDilation = function(_multiplier)
     {
         __dilation = max(0, _multiplier);
-        __secondsPerCycle = 1 / (__dilation*__updateFrequency);
+        __secondsPerTick = 1 / (__dilation*__updateFrequency);
     }
     
     static GetTimeDilation = function()
@@ -467,9 +468,9 @@ function IotaClock(_identifier = undefined) constructor
     {
         switch(_method_type)
         {
-            case __IOTA_CHILD.__BEGIN_CYCLE_METHOD: var _array = __beginMethodArray; break;
-            case __IOTA_CHILD.__NORMAL_CYCLE_METHOD: var _array = __cycleMethodArray; break;
-            case __IOTA_CHILD.__END_CYCLE_METHOD:   var _array = __endMethodArray;   break;
+            case __IOTA_CHILD.__BEGIN_METHOD: var _array = __beginMethodArray; break;
+            case __IOTA_CHILD.__NORMAL_METHOD: var _array = __normalMethodArray; break;
+            case __IOTA_CHILD.__END_METHOD:   var _array = __endMethodArray;   break;
         }
         
         var _i = 0;
@@ -541,9 +542,9 @@ function IotaClock(_identifier = undefined) constructor
         
         switch(_method_type)
         {
-            case __IOTA_CHILD.__BEGIN_CYCLE_METHOD: var _array = __beginMethodArray; break;
-            case __IOTA_CHILD.__NORMAL_CYCLE_METHOD: var _array = __cycleMethodArray; break;
-            case __IOTA_CHILD.__END_CYCLE_METHOD:   var _array = __endMethodArray;   break;
+            case __IOTA_CHILD.__BEGIN_METHOD: var _array = __beginMethodArray; break;
+            case __IOTA_CHILD.__NORMAL_METHOD: var _array = __normalMethodArray; break;
+            case __IOTA_CHILD.__END_METHOD:   var _array = __endMethodArray;   break;
         }
         
         var _childData = __GetChildData(_scope);
@@ -775,23 +776,23 @@ __IotaTrace("Welcome to iota by Juju Adams! This is version " + __IOTA_VERSION +
 global.__iotaUniqueID     = 0;
 global.__iotaCurrentClock = undefined;
 
-#macro IOTA_CURRENT_CLOCK       global.__iotaCurrentIdentifier
-#macro IOTA_CYCLES_FOR_CLOCK    global.__iotaTotalCycles
-#macro IOTA_CYCLE_INDEX         global.__iotaCycleIndex
-#macro IOTA_SECONDS_PER_CYCLE   global.__iotaSecondsPerCycle  
+#macro IOTA_CURRENT_CLOCK     global.__iotaCurrentIdentifier
+#macro IOTA_TICKS_FOR_CLOCK   global.__iotaTotalTicks
+#macro IOTA_TICK_INDEX        global.__iotaTickIndex
+#macro IOTA_SECONDS_PER_TICK  global.__iotaSecondsPerTick  
 
-IOTA_CURRENT_CLOCK     = undefined;
-IOTA_CYCLES_FOR_CLOCK  = undefined;
-IOTA_CYCLE_INDEX       = undefined;
-IOTA_SECONDS_PER_CYCLE = undefined;
+IOTA_CURRENT_CLOCK    = undefined;
+IOTA_TICKS_FOR_CLOCK  = undefined;
+IOTA_TICK_INDEX       = undefined;
+IOTA_SECONDS_PER_TICK = undefined;
 
 enum __IOTA_CHILD
 {
     __IOTA_ID,
     __SCOPE,
-    __BEGIN_CYCLE_METHOD,
-    __NORMAL_CYCLE_METHOD,
-    __END_CYCLE_METHOD,
+    __BEGIN_METHOD,
+    __NORMAL_METHOD,
+    __END_METHOD,
     __DEAD,
     __VARIABLES_INTERPOLATE,
     __SIZE
@@ -810,7 +811,7 @@ enum __IOTA_INTERPOLATED_VARIABLE
 
 
 
-function __IotaClassAlarm(_clock, _cycles, _method) constructor
+function __IotaClassAlarm(_clock, _ticks, _method) constructor
 {
     __clock     = undefined;
     __total     = undefined;
@@ -823,8 +824,8 @@ function __IotaClassAlarm(_clock, _cycles, _method) constructor
     if (_scope != undefined)
     {
         __clock     = _clock;
-        __total     = _cycles;
-        __remaining = _cycles;
+        __total     = _ticks;
+        __remaining = _ticks;
         __func      = method(undefined, _method);
         __scope     = _scope;
 		__iotaID    = __IotaEnsureChildID(_scope);
