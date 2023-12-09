@@ -28,7 +28,7 @@
 ///     Tick methods will *not* be executed if the clock doesn't need to execute any ticks at all
 ///   
 ///   .AddEndTickMethod(method)
-///     Adds a method to be executed at the end of a cycke, after all tick methods and alarms
+///     Adds a method to be executed at the end of a tick, after all tick methods and alarms
 ///     The scope of the method passed into this function will persist
 ///     Only one end method can be defined per instance/struct
 ///     End methods will *not* be executed if the clock doesn't need to execute any ticks at all
