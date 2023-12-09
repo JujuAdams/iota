@@ -1,7 +1,7 @@
 {
   "option_windows_display_name": "iota",
   "option_windows_executable_name": "${project_name}.exe",
-  "option_windows_version": "3.1.0.0",
+  "option_windows_version": "4.0.0.0",
   "option_windows_company_info": "Juju Adams",
   "option_windows_product_info": "iota",
   "option_windows_copyright_info": "(c) Juju Adams 2023",

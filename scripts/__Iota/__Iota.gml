@@ -1,7 +1,7 @@
 // Feather disable all
 
-#macro __IOTA_VERSION  "3.1.0"
-#macro __IOTA_DATE     "2023-12-06"
+#macro __IOTA_VERSION  "4.0.0"
+#macro __IOTA_DATE     "2023-12-09"
 
 enum __IOTA_CHILD
 {
