@@ -1,12 +1,11 @@
 angle = 45;
-leftPressedState = false;
-rightPressedState = false;
+outAngle = angle;
 
 oController.clock.VariableInterpolateAngle("angle", "outAngle");
-oController.clock.VariableMomentary("leftPressedState", false);
-oController.clock.VariableMomentary("rightPressedState", false);
+oController.clock.DefineInputMomentary("left pressed",  false);
+oController.clock.DefineInputMomentary("right pressed", false);
 
 oController.clock.AddCycleMethod(function()
 {
-    angle = (angle + 90*(leftPressedState - rightPressedState)) mod 360;
+    angle = (angle + 90*(IotaGetInput("left pressed") - IotaGetInput("right pressed"))) mod 360;
 });
