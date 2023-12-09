@@ -32,22 +32,28 @@ Variable to set in structs/instances to record their unique iota ID. This allows
 
 # Macros
 
-There are three additional macros that are available for use inside iota methods. Outside of iota methods they will return `undefined`.
+There are four additional macros that are available for use inside iota methods. Outside of iota methods they will return `undefined`.
 
 &nbsp;
 
 ### `IOTA_CURRENT_CLOCK`
 
-Identifier for the clock that's currently being handled (0-indexed).
+Identifier for the clock that's currently being handled.
 
 &nbsp;
 
-### `IOTA_CYCLES_FOR_CLOCK`
+### `IOTA_TICKS_FOR_CLOCK`
 
-Total number of cycles that will be processed this frame for the current clock.
+Total number of ticks that will be processed this update for the current clock.
 
 &nbsp;
 
-### `IOTA_CYCLE_INDEX`
+### `IOTA_TICK_INDEX`
 
-Current cycle for the current clock (0-indexed). This will be `-1` for begin methods and equal to `IOTA_CYCLES_FOR_CLOCK` for end methods.
+Current tick for the current clock (0-indexed).
+
+&nbsp;
+
+### `IOTA_SECONDS_PER_TICK`
+
+How long each tick is, in seconds, for the current clock.

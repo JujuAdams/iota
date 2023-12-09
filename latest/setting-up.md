@@ -4,7 +4,7 @@
 
 The architecture of iota is centred around clocks. A clock is responsible for keeping track of when code should be executed. Instances (and structs) can attach methods to a clock and the clock will execute those methods at a fixed update frequency.
 
-Creating a clock is done using the [`new` keyword](https://www.yoyogames.com/en/blog/gamemaker-studio-2-dot-3-new-gml-features) introduced in GameMaker Studio 2.3:
+Creating a clock is done using the [`new` keyword](https://www.yoyogames.com/en/blog/gamemaker-studio-2-dot-3-new-gml-features):
 
 ```GML
 ///Create Event of the controller object
@@ -12,11 +12,11 @@ global.clock = new IotaClock();
 global.clock.SetUpdateFrequency(60);
 ```
 
-These two lines of code create a new clock and stores a reference to it in the variable `global.clock`. We also set the update frequency of the clock to 60hz which matches the default GameMaker framerate of 60FPS. In the Step event of a controller instance we'll call the `.Tick()` method for the clock.
+These two lines of code create a new clock and stores a reference to it in the variable `global.clock`. We also set the update frequency of the clock to 60hz which matches the default GameMaker framerate of 60FPS. In the Step event of a controller instance we'll call the `.Update()` method for the clock.
 
 ```GML
 ///Step Event of the controller object
-global.clock.Tick();
+global.clock.Update();
 ```
 
 This ensures that the clock will update constantly and, if it needs to, execute code.
@@ -27,7 +27,7 @@ Create a new object for the player and, in its Create event, we attach a method 
 ///Create Event of the player
 
 //Attach a basic movement method to the clock
-global.clock.AddCycleMethod(function()
+global.clock.AddTickMethod(function()
 {
     if (keyboard_check(vk_up)) y -= 4;
     if (keyboard_check(vk_down)) y += 4;
@@ -36,7 +36,7 @@ global.clock.AddCycleMethod(function()
 });
 ```
 
-This function moves the player instance around depending on what direction the user is pressing on the keyboard. **We don't need to add anything to the Step event** because this function we've attached to the clock will be executed for us. Only one "cycle method" can be attached per instance so if we want to change what logic is being called by the clock then we should add it to this function.
+This function moves the player instance around depending on what direction the user is pressing on the keyboard. **We don't need to add anything to the Step event** because this function we've attached to the clock will be executed for us. Only one "tick method" can be attached per instance so if we want to change what logic is being called by the clock then we should add it to this function.
 
 Finally, let's draw the player.
 
@@ -67,7 +67,7 @@ global.clock.VariableInterpolate("x", "iotaX");
 global.clock.VariableInterpolate("y", "iotaY");
 
 //Attach a basic movement method to the clock (this is unchanged from before)
-global.clock.AddCycleMethod(function()
+global.clock.AddTickMethod(function()
 {
     if (keyboard_check(vk_up)) y -= 4;
     if (keyboard_check(vk_down)) y += 4;
@@ -87,9 +87,9 @@ iota will now interpolate player motion between updates so that what we draw to 
 
 ## Input
 
-So far, we've been reading user input via GameMaker's native functionality. This is mostly fine but you will immediately run into problems if you're looking to use momentary input for actions such as jumping, shooting, selecting menu options etc. For the sake of clarity, a momentary input is any input value that is set for a single cycle and then automatically reset to a default value. Any value returned from `keyboard_check_pressed()` and `mouse_button_check_released()` and the like is inherently a momentary value. You may be able to use iota's variable system to cope with this, but it's easier to use the native iota input system instead.
+So far, we've been reading user input via GameMaker's native functionality. This is mostly fine but you will immediately run into problems if you're looking to use momentary input for actions such as jumping, shooting, selecting menu options etc. For the sake of clarity, a momentary input is any input value that is set for a single tick and then automatically reset to a default value. Any value returned from `keyboard_check_pressed()` and `mouse_button_check_released()` and the like is inherently a momentary value. You may be able to use iota's variable system to cope with this, but it's easier to use the native iota input system instead.
 
-Let's revisit our input checking code and refactor it to use the input system. We currently have the following as our cycle method:
+Let's revisit our input checking code and refactor it to use the input system. We currently have the following as our tick method:
 
 ```GML
 function()
@@ -129,7 +129,7 @@ global.clock.DefineInput("left", false);
 global.clock.DefineInput("right", false);
 ```
 
-Finally, we need to set values for the clock's input from the keyboard so that cycle methods have something useful to read.
+Finally, we need to set values for the clock's input from the keyboard so that tick methods have something useful to read.
 
 ```GML
 ///Step Event of the controller object
@@ -139,8 +139,8 @@ global.clock.SetInput("down", keyboard_check(vk_down));
 global.clock.SetInput("left", keyboard_check(vk_left));
 global.clock.SetInput("right", keyboard_check(vk_right));
 
-//Update the clock and execute cycle methods
-global.clock.Tick();
+//Update the clock and execute tick methods
+global.clock.Update();
 ```
 
 -----
