@@ -4,7 +4,7 @@
 
 ### What platforms does iota support?
 
-Probably everything! iota is pure GML and doesn't do anything hacky or weird. You might run into edge cases on platforms that I haven't tested; please [report any bugs](https://github.com/JujuAdams/Scribble/issues) if and when you find them.
+Everything apart from HTML5! iota is pure GML and doesn't do anything hacky or weird. You might run into edge cases on platforms that I haven't tested; please [report any bugs](https://github.com/JujuAdams/Scribble/issues) if and when you find them.
 
 &nbsp;
 
@@ -22,7 +22,7 @@ Great! Please make a [feature request](https://github.com/JujuAdams/iota/issues)
 
 ### I found a bug, and it both scares and mildly annoys me. What is the best way to get the problem solved?
 
-Please make a [bug report](https://github.com/JujuAdams/iota/issues). Juju checks GitHub every day and bug fixes usually go out a couple days after that. You can also grab me on the [Discord server](https://discord.gg/8krYCqr), but that's not a replacement for a nice clear bug report.
+Please make a [bug report](https://github.com/JujuAdams/iota/issues). Juju checks GitHub every day and bug fixes usually go out a couple days after that.
 
 &nbsp;
 
