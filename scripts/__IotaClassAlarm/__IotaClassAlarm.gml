@@ -44,14 +44,26 @@ function __IotaClassAlarm(_clock, _ticks, _method) constructor
         __remaining--;
         if (__remaining <= 0)
         {
-            if (__IotaScopeExists(__scope, __iotaID))
+            var _func = __func;
+            switch(__IotaScopeExists(__scope, __iotaID))
             {
-                var _func = __func;
-                with(__scope) _func();
-            }
-            else
-            {
-                __IotaTrace("Warning! Scope was for alarm no longer exists, alarm will never execute (stack = ", debug_get_callstack(), ")");
+                case 1: //Alive instance
+                    with(__scope) _func();
+                break;
+                
+                case 2: //Alive struct
+                    with(__scope.ref) _func();
+                break;
+                
+                case -1:
+                case -2:
+                case -3:
+                    __IotaTrace("Warning! Scope for alarm no longer exists, alarm cannot execute (stack = ", debug_get_callstack(), ")");
+                break;
+                
+                case 0:
+                    __IotaTrace("Warning! Scope for alarm has been deactivated, alarm cannot execute (stack = ", debug_get_callstack(), ")");
+                break;
             }
             
             return true;
