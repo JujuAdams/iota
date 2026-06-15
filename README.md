@@ -1,7 +1,7 @@
 <p align="center"><img src="https://raw.githubusercontent.com/JujuAdams/iota/master/LOGO.png" style="display:block; margin:auto; width:300px"></p>
 <h1 align="center">iota 4.0.1</h1>
 
-<p align="center">Miniature delta time and time dilation library for GameMaker 2022 LTS</p>
+<p align="center">Miniature delta time and time dilation library for GameMaker LTS 2026</p>
 
 &nbsp;
 
